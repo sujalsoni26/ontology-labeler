@@ -1,0 +1,726 @@
+{
+  "http://dbpedia.org/ontology/AcademicJournal": {
+    "label": "academic journal",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/AdministrativeRegion": {
+    "label": "administrative region",
+    "comment": "A PopulatedPlace under the jurisdiction of an administrative body. This body may administer either a whole region or one or more adjacent Settlements (town administration)"
+  },
+  "http://dbpedia.org/ontology/Agent": {
+    "label": "agent",
+    "comment": "Analogous to a foaf:Agent, an agent is an entity that acts. This is intended to be the super class of Person and Organisation."
+  },
+  "http://dbpedia.org/ontology/Aircraft": {
+    "label": "aircraft",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Airline": {
+    "label": "airline",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Airport": {
+    "label": "airport",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Album": {
+    "label": "album",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/AnatomicalStructure": {
+    "label": "anatomical structure",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Animal": {
+    "label": "animal",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Architect": {
+    "label": "architect",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/ArchitecturalStructure": {
+    "label": "architectural structure",
+    "comment": "An architectural structure is a human-made, free-standing, immobile outdoor construction (http://en.wikipedia.org/wiki/Architectural_structure)."
+  },
+  "http://dbpedia.org/ontology/Artery": {
+    "label": "artery",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Artist": {
+    "label": "artist",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Artwork": {
+    "label": "artwork",
+    "comment": "A work of art, artwork, art piece, or art object is an aesthetic item or artistic creation."
+  },
+  "http://dbpedia.org/ontology/Athlete": {
+    "label": "athlete",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Attack": {
+    "label": "attack",
+    "comment": "حملہ لازمی طور پر فوجی تصادم کا حصہ نہیں ہے۔"
+  },
+  "http://dbpedia.org/ontology/Automobile": {
+    "label": "automobile",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/AutomobileEngine": {
+    "label": "automobile engine",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Band": {
+    "label": "Band",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/BaseballPlayer": {
+    "label": "baseball player",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Beverage": {
+    "label": "beverage",
+    "comment": "A drink, or beverage, is a liquid which is specifically prepared for human consumption."
+  },
+  "http://dbpedia.org/ontology/Biomolecule": {
+    "label": "Biomolecule",
+    "comment": "equivalent to http://ccdb.ucsd.edu/NIF/BIRNLex-OBO-UBO.owl#birnlex_22."
+  },
+  "http://dbpedia.org/ontology/BodyOfWater": {
+    "label": "body of water",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Boxer": {
+    "label": "boxer",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Brain": {
+    "label": "brain",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Bridge": {
+    "label": "bridge",
+    "comment": "A bridge is a structure built to span physical obstacles such as a body of water, valley, or road, for the purpose of providing passage over the obstacle (http://en.wikipedia.org/wiki/Bridge)."
+  },
+  "http://dbpedia.org/ontology/Broadcaster": {
+    "label": "broadcaster",
+    "comment": "A broadcaster is an organisation responsible for the production of radio or television programs and/or their transmission. (http://en.wikipedia.org/wiki/Broadcaster - 28/03/2011)"
+  },
+  "http://dbpedia.org/ontology/Building": {
+    "label": "building",
+    "comment": "Building is defined as a Civil Engineering structure such as a house, worship center, factory etc. that has a foundation, wall, roof etc. that protect human being and their properties from direct harsh effect of weather like rain, wind, sun etc. (http://en.wikipedia.org/wiki/Building)."
+  },
+  "http://dbpedia.org/ontology/Canal": {
+    "label": "canal",
+    "comment": "a man-made channel for water"
+  },
+  "http://dbpedia.org/ontology/CareerStation": {
+    "label": "career station",
+    "comment": "this class marks a career step in the life of a person, e.g. a soccer player, holding information on the time span, matches and goals he or she achieved at a certain club"
+  },
+  "http://dbpedia.org/ontology/Cartoon": {
+    "label": "cartoon",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/CelestialBody": {
+    "label": "celestial body",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/ChemicalCompound": {
+    "label": "chemical compound",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/ChemicalSubstance": {
+    "label": "chemical substance",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/ChristianDoctrine": {
+    "label": "Christian Doctrine",
+    "comment": "Tenets of the Christian faith, e.g. Trinity, Nicene Creed"
+  },
+  "http://dbpedia.org/ontology/City": {
+    "label": "city",
+    "comment": "a relatively large and permanent settlement, particularly a large urban settlement"
+  },
+  "http://dbpedia.org/ontology/Cleric": {
+    "label": "cleric",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/College": {
+    "label": "college",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/CollegeCoach": {
+    "label": "college coach",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Colour": {
+    "label": "colour",
+    "comment": "Color or colour is the visual perceptual property corresponding in humans to the categories called red, yellow, blue and others. Color derives from the spectrum of light (distribution of light energy versus wavelength) interacting in the eye with the spectral sensitivities of the light receptors."
+  },
+  "http://dbpedia.org/ontology/Company": {
+    "label": "company",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/ConcentrationCamp": {
+    "label": "Concentration camp",
+    "comment": "camp in which people are imprisoned or confined, commonly in large groups, without trial.\nIncludes concentration, extermination, transit, detention, internment, (forced) labor, prisoner-of-war, Gulag; Nazi camps related to the Holocaust"
+  },
+  "http://dbpedia.org/ontology/Constellation": {
+    "label": "constellation",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Country": {
+    "label": "country",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Cricketer": {
+    "label": "cricketer",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Criminal": {
+    "label": "criminal",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Currency": {
+    "label": "currency",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/CyclingTeam": {
+    "label": "cycling team",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Department": {
+    "label": "department",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Disease": {
+    "label": "disease",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Drug": {
+    "label": "drug",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/EducationalInstitution": {
+    "label": "educational institution",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Election": {
+    "label": "Election",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/EthnicGroup": {
+    "label": "ethnic group",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Event": {
+    "label": "event",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/FictionalCharacter": {
+    "label": "fictional character",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/FigureSkater": {
+    "label": "figure skater",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Film": {
+    "label": "movie",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/FilmFestival": {
+    "label": "film festival",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Flag": {
+    "label": "flag",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Food": {
+    "label": "Food",
+    "comment": "Food is any eatable or drinkable substance that is normally consumed by humans."
+  },
+  "http://dbpedia.org/ontology/FormulaOneRacer": {
+    "label": "Formula One racer",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/GivenName": {
+    "label": "given name",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/GrandPrix": {
+    "label": "Grand Prix",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Grape": {
+    "label": "grape",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/GridironFootballPlayer": {
+    "label": "gridiron football player",
+    "comment": "Gradiron football, also called North American football, is a family of soccer team games played primarily in the United States and Canada."
+  },
+  "http://dbpedia.org/ontology/HistoricBuilding": {
+    "label": "historic building",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/HistoricPlace": {
+    "label": "historic place",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Horse": {
+    "label": "horse",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Hospital": {
+    "label": "hospital",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Hotel": {
+    "label": "hotel",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/HungarySettlement": {
+    "label": "",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/IceHockeyPlayer": {
+    "label": "ice hockey player",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Infrastructure": {
+    "label": "infrastructure",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Instrument": {
+    "label": "Instrument",
+    "comment": "Describes all musical instrument"
+  },
+  "http://dbpedia.org/ontology/Intercommunality": {
+    "label": "Intercommunality",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Island": {
+    "label": "island",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Language": {
+    "label": "language",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/LaunchPad": {
+    "label": "launch pad",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/LawFirm": {
+    "label": "law firm",
+    "comment": "A law firm is a business entity formed by one or more lawyers to engage in the practice of law. The primary service provided by a law firm is to advise clients (individuals or corporations) about their legal rights and responsibilities, and to represent their clients in civil or criminal cases, business transactions, and other matters in which legal advice and other assistance are sought."
+  },
+  "http://dbpedia.org/ontology/LegalCase": {
+    "label": "Legal Case",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Legislature": {
+    "label": "legislature",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Letter": {
+    "label": "letter",
+    "comment": "A letter from the alphabet."
+  },
+  "http://dbpedia.org/ontology/LiechtensteinSettlement": {
+    "label": "",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Locomotive": {
+    "label": "locomotive",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Magazine": {
+    "label": "magazine",
+    "comment": "Magazines, periodicals, glossies or serials are publications, generally published on a regular schedule, containing a variety of articles. They are generally financed by advertising, by a purchase price, by pre-paid magazine subscriptions, or all three."
+  },
+  "http://dbpedia.org/ontology/Man": {
+    "label": "man",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MeanOfTransportation": {
+    "label": "mean of transportation",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MilitaryConflict": {
+    "label": "military conflict",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MilitaryPerson": {
+    "label": "military person",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MilitaryUnit": {
+    "label": "military unit",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Monarch": {
+    "label": "monarch",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Monastry": {
+    "label": "",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Mountain": {
+    "label": "mountain",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MountainRange": {
+    "label": "mountain range",
+    "comment": "a chain of mountains bordered by highlands or separated from other mountains by passes or valleys."
+  },
+  "http://dbpedia.org/ontology/MultiVolumePublication": {
+    "label": "multi volume publication",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Municipality": {
+    "label": "municipality",
+    "comment": "An administrative body governing a territorial unity on the lower level, administering one or a few more settlements"
+  },
+  "http://dbpedia.org/ontology/Museum": {
+    "label": "museum",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MusicGenre": {
+    "label": "music genre",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Musical": {
+    "label": "musical",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MusicalWork": {
+    "label": "musical work",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Nerve": {
+    "label": "nerve",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Newspaper": {
+    "label": "newspaper",
+    "comment": "A newspaper is a regularly scheduled publication containing news of current events, informative articles, diverse features and advertising. It usually is printed on relatively inexpensive, low-grade paper such as newsprint."
+  },
+  "http://dbpedia.org/ontology/NorwaySettlement": {
+    "label": "",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/OfficeHolder": {
+    "label": "office holder",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/OlympicResult": {
+    "label": "olympic result",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Openswarm": {
+    "label": "Open Swarm",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Organisation": {
+    "label": "organisation",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Organization": {
+    "label": "",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Outbreak": {
+    "label": "Outbreak",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/PeriodicalLiterature": {
+    "label": "periodical literature",
+    "comment": "Periodical literature (also called a periodical publication or simply a periodical) is a published work that appears in a new edition on a regular schedule. The most familiar examples are the newspaper, often published daily, or weekly; or the magazine, typically published weekly, monthly or as a quarterly. Other examples would be a newsletter, a literary journal or learned journal, or a yearbook."
+  },
+  "http://dbpedia.org/ontology/Person": {
+    "label": "person",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/PersonFunction": {
+    "label": "person function",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Place": {
+    "label": "place",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Planet": {
+    "label": "planet",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Plant": {
+    "label": "plant",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Play": {
+    "label": "play",
+    "comment": "A play is a form of literature written by a playwright, usually consisting of scripted dialogue between characters, intended for theatrical performance rather than just reading."
+  },
+  "http://dbpedia.org/ontology/PoliticalParty": {
+    "label": "political party",
+    "comment": "for example: Democratic_Party_(United_States)"
+  },
+  "http://dbpedia.org/ontology/PopulatedPlace": {
+    "label": "populated place",
+    "comment": "As defined by the United States Geological Survey, a populated place is a place or area with clustered or scattered buildings and a permanent human population (city, settlement, town, or village) referenced with geographic coordinates (http://en.wikipedia.org/wiki/Populated_place)."
+  },
+  "http://dbpedia.org/ontology/PowerStation": {
+    "label": "power station",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Priest": {
+    "label": "priest",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/ProtectedArea": {
+    "label": "protected area",
+    "comment": "This class should be used for protected nature. For enclosed neighbourhoods there is now class GatedCommunity"
+  },
+  "http://dbpedia.org/ontology/Protein": {
+    "label": "protein",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/PublicTransitSystem": {
+    "label": "public transit system",
+    "comment": "A public transit system is a shared passenger transportation service which is available for use by the general public. Public transport modes include buses, trolleybuses, trams and trains, 'rapid transit' (metro/subways/undergrounds etc) and ferries. Intercity public transport is dominated by airlines, coaches, and intercity rail. (http://en.wikipedia.org/wiki/Public_transit)."
+  },
+  "http://dbpedia.org/ontology/Race": {
+    "label": "race",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/RadioStation": {
+    "label": "radio station",
+    "comment": "A radio station has one line up. For instance the radio station BBC Radio 1. Not to be confused with the broadcasting network BBC, which has many radio stations."
+  },
+  "http://dbpedia.org/ontology/RecordLabel": {
+    "label": "record label",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Reference": {
+    "label": "Reference",
+    "comment": "Reference to a work (book, movie, website)  providing info about the subject"
+  },
+  "http://dbpedia.org/ontology/ReligiousBuilding": {
+    "label": "religious building",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/ResearchProject": {
+    "label": "research project",
+    "comment": "A research project is a scientific investigation, usually using scientific methods, to achieve defined objectives."
+  },
+  "http://dbpedia.org/ontology/Restaurant": {
+    "label": "restaurant",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/River": {
+    "label": "river",
+    "comment": "a large natural stream"
+  },
+  "http://dbpedia.org/ontology/Road": {
+    "label": "road",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/RoadJunction": {
+    "label": "road junction",
+    "comment": "A road junction is a location where vehicular traffic going in different directions can proceed in a controlled manner designed to minimize accidents. In some cases, vehicles can change between different routes or directions of travel (http://en.wikipedia.org/wiki/Junction_%28road%29)."
+  },
+  "http://dbpedia.org/ontology/Rocket": {
+    "label": "rocket",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/RouteOfTransportation": {
+    "label": "route of transportation",
+    "comment": "A route of transportation (thoroughfare) may refer to a public road, highway, path or trail or a route on water from one place to another for use by a variety of general traffic (http://en.wikipedia.org/wiki/Thoroughfare)."
+  },
+  "http://dbpedia.org/ontology/Saint": {
+    "label": "saint",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Sales": {
+    "label": "sales",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/School": {
+    "label": "school",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Scientist": {
+    "label": "scientist",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Settlement": {
+    "label": "settlement",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Ship": {
+    "label": "ship",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/ShoppingMall": {
+    "label": "shopping mall",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Single": {
+    "label": "single",
+    "comment": "In music, a single or record single is a type of release, typically a recording of fewer tracks than an LP or a CD."
+  },
+  "http://dbpedia.org/ontology/SiteOfSpecialScientificInterest": {
+    "label": "Site of Special Scientific Interest",
+    "comment": "A Site of Special Scientific Interest (SSSI) is a conservation designation denoting a protected area in the United Kingdom. SSSIs are the basic building block of site-based nature conservation legislation and most other legal nature/geological conservation designations in Great Britain are based upon them, including National Nature Reserves, Ramsar Sites, Special Protection Areas, and Special Areas of Conservation."
+  },
+  "http://dbpedia.org/ontology/Skyscraper": {
+    "label": "skyscraper",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/SnookerPlayer": {
+    "label": "snooker player",
+    "comment": "An athlete that plays snooker, which is a billard derivate"
+  },
+  "http://dbpedia.org/ontology/SoccerClub": {
+    "label": "soccer club",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/SoccerPlayer": {
+    "label": "soccer player",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Software": {
+    "label": "software",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/SpaceMission": {
+    "label": "space mission",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/SpaceShuttle": {
+    "label": "space shuttle",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Spacecraft": {
+    "label": "spacecraft",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Species": {
+    "label": "species",
+    "comment": "A category in the rating system"
+  },
+  "http://dbpedia.org/ontology/SportCompetitionResult": {
+    "label": "results of a sport competition",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/SportsEvent": {
+    "label": "sports event",
+    "comment": "a event of competitive physical activity"
+  },
+  "http://dbpedia.org/ontology/SportsLeague": {
+    "label": "sports league",
+    "comment": "A group of sports teams or individual athletes that compete against each other in a specific sport."
+  },
+  "http://dbpedia.org/ontology/SportsTeam": {
+    "label": "sports team",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/SportsTeamMember": {
+    "label": "Sports team member",
+    "comment": "A member of an athletic team."
+  },
+  "http://dbpedia.org/ontology/StatedResolution": {
+    "label": "Stated Resolution",
+    "comment": "A Resolution describes a formal statement adopted by a meeting or convention."
+  },
+  "http://dbpedia.org/ontology/Station": {
+    "label": "station",
+    "comment": "Public transport station (eg. railway station, metro station, bus station)."
+  },
+  "http://dbpedia.org/ontology/SupremeCourtOfTheUnitedStatesCase": {
+    "label": "Supreme Court of the United States case",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/TelevisionEpisode": {
+    "label": "television episode",
+    "comment": "A television episode is a part of serial television program."
+  },
+  "http://dbpedia.org/ontology/TelevisionShow": {
+    "label": "television show",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/TennisPlayer": {
+    "label": "tennis player",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/TimePeriod": {
+    "label": "time period",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Train": {
+    "label": "train",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/University": {
+    "label": "university",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/VideoGame": {
+    "label": "video game",
+    "comment": "A video game is an electronic game that involves interaction with a user interface to generate visual feedback on a video device."
+  },
+  "http://dbpedia.org/ontology/Volcano": {
+    "label": "volcano",
+    "comment": "A volcano is currently subclass of naturalplace, but it might also be considered a mountain."
+  },
+  "http://dbpedia.org/ontology/VolleyballPlayer": {
+    "label": "volleyball player",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Weapon": {
+    "label": "weapon",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/WineRegion": {
+    "label": "wine region",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Woman": {
+    "label": "woman",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Work": {
+    "label": "work",
+    "comment": "Item on which time has been spent for its realisation. Actor can be a human on not (machine, insects, nature...)"
+  },
+  "http://dbpedia.org/ontology/WorldHeritageSite": {
+    "label": "World Heritage Site",
+    "comment": "A UNESCO World Heritage Site is a site (such as a forest, mountain, lake, desert, monument, building, complex, or city) that is on the list that is maintained by the international World Heritage Programme administered by the UNESCO World Heritage Committee, composed of 21 state parties which are elected by their General Assembly for a four-year term. A World Heritage Site is a place of either cultural or physical significance."
+  },
+  "http://dbpedia.org/ontology/Wrestler": {
+    "label": "wrestler",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/WrestlingEvent": {
+    "label": "wrestling event",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/WrittenWork": {
+    "label": "written work",
+    "comment": "Written work is any text written to read it (e.g.: books, newspaper, articles)"
+  },
+  "http://dbpedia.org/ontology/YearInSpaceflight": {
+    "label": "year in spaceflight",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/company": {
+    "label": "",
+    "comment": ""
+  }
+}

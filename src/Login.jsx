@@ -3,36 +3,77 @@ import { supabase } from './supabase';
 
 export default function Login({ message }) {
   const [isSignup, setIsSignup] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  const handleForgotPassword = async () => {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError('Please enter your email first');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      redirectTo: `${window.location.origin}${window.location.pathname}?type=recovery`,
+    });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setSuccess('Password reset link sent! Check your email.');
+      setResetSent(true);
+    }
+    setLoading(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
     setLoading(true);
 
-    const username = e.target.username.value.trim();
-    const password = e.target.password.value;
+    const trimmedEmail = email.trim();
 
-    if (!username) {
-      setError('Username required');
+    if (!trimmedEmail) {
+      setError('Email required');
       setLoading(false);
       return;
     }
-
-    // 👇 Fake email derived from username
-    const email = `${username}@local.auth`;
 
     let result;
 
     if (isSignup) {
       result = await supabase.auth.signUp({
-        email,
+        email: trimmedEmail,
         password
       });
+      
+      if (!result.error) {
+        // If confirmation is enabled, result.data.user exists but session is null
+        // If confirmation is disabled, result.data.session exists
+        // If user already exists, Supabase might return a fake success 
+        // depending on "Enable email provider" -> "Confirm email" settings.
+        
+        if (result.data?.user && result.data.user.identities?.length === 0) {
+          setError('An account with this email already exists.');
+          setLoading(false);
+          return;
+        }
+
+        setSuccess('Check your email for the confirmation link!');
+      }
     } else {
       result = await supabase.auth.signInWithPassword({
-        email,
+        email: trimmedEmail,
         password
       });
     }
@@ -44,11 +85,14 @@ export default function Login({ message }) {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
+    <div className={`login-container ${isSignup ? 'signup-mode' : 'signin-mode'}`}>
+      <div className={`login-card ${isSignup ? 'signup-card' : ''}`}>
         <div className="login-header">
-          <h2>Ontology Labeler</h2>
-          <p>{isSignup ? 'Create an account to start labeling' : 'Sign in to your account'}</p>
+          <div className="auth-icon-circle">
+            {isSignup ? '📝' : '🔐'}
+          </div>
+          <h2>{isSignup ? 'Create Account' : 'Welcome Back'}</h2>
+          <p>{isSignup ? 'Join us to start labeling data' : 'Sign in to continue your work'}</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
@@ -58,30 +102,60 @@ export default function Login({ message }) {
           {error && (
             <div className="error-message">{error}</div>
           )}
+          {success && (
+            <div className="status-message" style={{ marginBottom: '15px', textAlign: 'center' }}>{success}</div>
+          )}
 
           <div className="input-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="email">Email</label>
             <input
-              id="username"
-              name="username"
+              id="email"
+              name="email"
+              type="email"
               className="input-field"
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               required
-              autoComplete="username"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
           <div className="input-group">
             <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              className="input-field"
-              placeholder="Enter your password"
-              required
-              autoComplete={isSignup ? "new-password" : "current-password"}
-            />
+            <div className="password-input-wrapper">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                className="input-field"
+                placeholder="Enter your password"
+                required
+                autoComplete={isSignup ? "new-password" : "current-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button 
+                type="button" 
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+            {!isSignup && (
+              <div className="forgot-password-link">
+                <button 
+                  type="button" 
+                  className="text-btn" 
+                  onClick={handleForgotPassword}
+                  disabled={loading}
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="auth-actions">
@@ -94,6 +168,8 @@ export default function Login({ message }) {
               <button type="button" onClick={() => {
                 setIsSignup(!isSignup);
                 setError(null);
+                setPassword(''); // Clear password for security/clarity
+                setShowPassword(false); // Reset visibility
               }}>
                 {isSignup ? 'Sign In' : 'Sign Up'}
               </button>

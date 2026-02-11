@@ -1,0 +1,442 @@
+{
+  "http://dbpedia.org/datatype/engineConfiguration": {
+    "label": "engineConfiguration",
+    "comment": ""
+  },
+  "http://dbpedia.org/datatype/valvetrain": {
+    "label": "valvetrain",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Actor": {
+    "label": "actor",
+    "comment": "An actor or actress is a person who acts in a dramatic production and who works in film, television, theatre, or radio in that capacity."
+  },
+  "http://dbpedia.org/ontology/Agent": {
+    "label": "agent",
+    "comment": "Analogous to a foaf:Agent, an agent is an entity that acts. This is intended to be the super class of Person and Organisation."
+  },
+  "http://dbpedia.org/ontology/Airport": {
+    "label": "airport",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Altitude": {
+    "label": "altitude",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/AnatomicalStructure": {
+    "label": "anatomical structure",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Animal": {
+    "label": "animal",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Architect": {
+    "label": "architect",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Artery": {
+    "label": "artery",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Astronaut": {
+    "label": "astronaut",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Athlete": {
+    "label": "athlete",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Automobile": {
+    "label": "automobile",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/AutomobileEngine": {
+    "label": "automobile engine",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/BodyOfWater": {
+    "label": "body of water",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/BroadcastNetwork": {
+    "label": "broadcast network",
+    "comment": "A broadcast network is an organization, such as a corporation or other association, that provides live or recorded content, such as movies, newscasts, sports, and public affairs programs for broadcast over a group of radio or television stations. (http://en.wikipedia.org/wiki/Broadcast_network - 28/03/2011)"
+  },
+  "http://dbpedia.org/ontology/Broadcaster": {
+    "label": "broadcaster",
+    "comment": "A broadcaster is an organisation responsible for the production of radio or television programs and/or their transmission. (http://en.wikipedia.org/wiki/Broadcaster - 28/03/2011)"
+  },
+  "http://dbpedia.org/ontology/Building": {
+    "label": "building",
+    "comment": "Building is defined as a Civil Engineering structure such as a house, worship center, factory etc. that has a foundation, wall, roof etc. that protect human being and their properties from direct harsh effect of weather like rain, wind, sun etc. (http://en.wikipedia.org/wiki/Building)."
+  },
+  "http://dbpedia.org/ontology/CareerStation": {
+    "label": "career station",
+    "comment": "this class marks a career step in the life of a person, e.g. a soccer player, holding information on the time span, matches and goals he or she achieved at a certain club"
+  },
+  "http://dbpedia.org/ontology/City": {
+    "label": "city",
+    "comment": "a relatively large and permanent settlement, particularly a large urban settlement"
+  },
+  "http://dbpedia.org/ontology/ClericalOrder": {
+    "label": "clerical order",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/College": {
+    "label": "college",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Community": {
+    "label": "Community",
+    "comment": "A community is a group of living organisms, people, plants or animals that live in a common environment."
+  },
+  "http://dbpedia.org/ontology/Company": {
+    "label": "company",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Contest": {
+    "label": "contest",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Continent": {
+    "label": "continent",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Country": {
+    "label": "country",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Currency": {
+    "label": "currency",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Department": {
+    "label": "department",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/EducationalInstitution": {
+    "label": "educational institution",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Embryology": {
+    "label": "embryology",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/EthnicGroup": {
+    "label": "ethnic group",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Event": {
+    "label": "event",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Film": {
+    "label": "movie",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/GrandPrix": {
+    "label": "Grand Prix",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Grape": {
+    "label": "grape",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Group": {
+    "label": "group",
+    "comment": "An (informal) group of people."
+  },
+  "http://dbpedia.org/ontology/HockeyTeam": {
+    "label": "hockey team",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Ideology": {
+    "label": "ideology",
+    "comment": "for example: Progressivism_in_the_United_States, Classical_liberalism"
+  },
+  "http://dbpedia.org/ontology/Infrastructure": {
+    "label": "infrastructure",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Instrument": {
+    "label": "Instrument",
+    "comment": "Describes all musical instrument"
+  },
+  "http://dbpedia.org/ontology/Island": {
+    "label": "island",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Jockey": {
+    "label": "jockey (horse racer)",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Judge": {
+    "label": "judge",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Language": {
+    "label": "language",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/LaunchPad": {
+    "label": "launch pad",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Legislature": {
+    "label": "legislature",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Locomotive": {
+    "label": "locomotive",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Lymph": {
+    "label": "lymph",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Magazine": {
+    "label": "magazine",
+    "comment": "Magazines, periodicals, glossies or serials are publications, generally published on a regular schedule, containing a variety of articles. They are generally financed by advertising, by a purchase price, by pre-paid magazine subscriptions, or all three."
+  },
+  "http://dbpedia.org/ontology/MeanOfTransportation": {
+    "label": "mean of transportation",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MedicalSpecialty": {
+    "label": "medical specialty",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MilitaryConflict": {
+    "label": "military conflict",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MilitaryService": {
+    "label": "military service",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MilitaryUnit": {
+    "label": "military unit",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Mountain": {
+    "label": "mountain",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MountainRange": {
+    "label": "mountain range",
+    "comment": "a chain of mountains bordered by highlands or separated from other mountains by passes or valleys."
+  },
+  "http://dbpedia.org/ontology/Museum": {
+    "label": "museum",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MusicGenre": {
+    "label": "music genre",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MusicalArtist": {
+    "label": "musical artist",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/MusicalWork": {
+    "label": "musical work",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Nerve": {
+    "label": "nerve",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Newspaper": {
+    "label": "newspaper",
+    "comment": "A newspaper is a regularly scheduled publication containing news of current events, informative articles, diverse features and advertising. It usually is printed on relatively inexpensive, low-grade paper such as newsprint."
+  },
+  "http://dbpedia.org/ontology/Novel": {
+    "label": "novel",
+    "comment": "A book of long narrative in literary prose"
+  },
+  "http://dbpedia.org/ontology/OlympicResult": {
+    "label": "olympic result",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Organ": {
+    "label": "organ",
+    "comment": "All types and sizes of organs"
+  },
+  "http://dbpedia.org/ontology/Organisation": {
+    "label": "organisation",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Person": {
+    "label": "person",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/PersonFunction": {
+    "label": "person function",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Place": {
+    "label": "place",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Plant": {
+    "label": "plant",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/PoliticalParty": {
+    "label": "political party",
+    "comment": "for example: Democratic_Party_(United_States)"
+  },
+  "http://dbpedia.org/ontology/PopulatedPlace": {
+    "label": "populated place",
+    "comment": "As defined by the United States Geological Survey, a populated place is a place or area with clustered or scattered buildings and a permanent human population (city, settlement, town, or village) referenced with geographic coordinates (http://en.wikipedia.org/wiki/Populated_place)."
+  },
+  "http://dbpedia.org/ontology/Population": {
+    "label": "population",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Project": {
+    "label": "project",
+    "comment": "A project is a temporary endeavor undertaken to achieve defined objectives."
+  },
+  "http://dbpedia.org/ontology/Province": {
+    "label": "province",
+    "comment": "An administrative body governing a territorial unity on the intermediate level, between local and national level"
+  },
+  "http://dbpedia.org/ontology/RadioStation": {
+    "label": "radio station",
+    "comment": "A radio station has one line up. For instance the radio station BBC Radio 1. Not to be confused with the broadcasting network BBC, which has many radio stations."
+  },
+  "http://dbpedia.org/ontology/RecordLabel": {
+    "label": "record label",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/River": {
+    "label": "river",
+    "comment": "a large natural stream"
+  },
+  "http://dbpedia.org/ontology/Road": {
+    "label": "road",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Rocket": {
+    "label": "rocket",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Saint": {
+    "label": "saint",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/School": {
+    "label": "school",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Settlement": {
+    "label": "settlement",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/SpaceMission": {
+    "label": "space mission",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/SpaceShuttle": {
+    "label": "space shuttle",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Spacecraft": {
+    "label": "spacecraft",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Species": {
+    "label": "species",
+    "comment": "A category in the rating system"
+  },
+  "http://dbpedia.org/ontology/SportsLeague": {
+    "label": "sports league",
+    "comment": "A group of sports teams or individual athletes that compete against each other in a specific sport."
+  },
+  "http://dbpedia.org/ontology/SportsTeam": {
+    "label": "sports team",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Station": {
+    "label": "station",
+    "comment": "Public transport station (eg. railway station, metro station, bus station)."
+  },
+  "http://dbpedia.org/ontology/Taxon": {
+    "label": "taxonomic group",
+    "comment": "a category within a classification system for Species"
+  },
+  "http://dbpedia.org/ontology/TelevisionShow": {
+    "label": "television show",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/TopLevelDomain": {
+    "label": "top level domain",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Vein": {
+    "label": "vein",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/WineRegion": {
+    "label": "wine region",
+    "comment": ""
+  },
+  "http://dbpedia.org/ontology/Work": {
+    "label": "work",
+    "comment": "Item on which time has been spent for its realisation. Actor can be a human on not (machine, insects, nature...)"
+  },
+  "http://dbpedia.org/ontology/WrittenWork": {
+    "label": "written work",
+    "comment": "Written work is any text written to read it (e.g.: books, newspaper, articles)"
+  },
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString": {
+    "label": "",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#boolean": {
+    "label": "XMLSchema#boolean",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#date": {
+    "label": "XMLSchema#date",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#double": {
+    "label": "XMLSchema#double",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#float": {
+    "label": "XMLSchema#float",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#gYear": {
+    "label": "XMLSchema#gYear",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#integer": {
+    "label": "XMLSchema#integer",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#nonNegativeInteger": {
+    "label": "XMLSchema#nonNegativeInteger",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#positiveInteger": {
+    "label": "XMLSchema#positiveInteger",
+    "comment": ""
+  },
+  "http://www.w3.org/2001/XMLSchema#string": {
+    "label": "XMLSchema#string",
+    "comment": ""
+  },
+  "http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing": {
+    "label": "",
+    "comment": ""
+  },
+  "http://www.w3.org/2004/02/skos/core#Concept": {
+    "label": "",
+    "comment": ""
+  }
+}

@@ -12,14 +12,15 @@ export default function Properties({ user, toggleTheme, theme }) {
   const [stats, setStats] = useState({});
 
   const [loading, setLoading] = useState(true);
+  const [hideGloballyLabeled, setHideGloballyLabeled] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      // Fetch properties with total sentence count
+      // Fetch properties with pre-calculated sentence_count
       const propsPromise = supabase
         .from('properties')
-        .select('*, sentences(count)')
+        .select('*')
         .order('name');
 
       // Fetch user label counts per property
@@ -28,22 +29,29 @@ export default function Properties({ user, toggleTheme, theme }) {
         .select('property_id')
         .eq('user_id', user.id);
       
+      // Fetch global progress (sentences that have at least one label)
+      // We can use the 'sentences' table directly since we have label_count there
+      const globalProgressPromise = supabase
+        .from('sentences')
+        .select('property_id, id')
+        .gt('label_count', 0);
+      
       const [
         { data: props, error: pErr },
-        { data: labs, error: lErr }
-      ] = await Promise.all([propsPromise, labsPromise]);
+        { data: labs, error: lErr },
+        { data: globalLabs, error: gErr }
+      ] = await Promise.all([propsPromise, labsPromise, globalProgressPromise]);
 
       if (pErr) console.error(pErr);
       if (lErr) console.error(lErr);
+      if (gErr) console.error(gErr);
 
       const newStats = {};
       const propList = props || [];
 
-      // Initialize with totals
+      // Initialize stats using the sentence_count from the DB
       propList.forEach(p => {
-        // sentences is returned as [{ count: N }]
-        const total = p.sentences?.[0]?.count || 0;
-        newStats[p.id] = { total, labeled: 0 };
+        newStats[p.id] = { total: p.sentence_count || 0, labeled: 0, globalLabeled: 0 };
       });
 
       // Aggregate user labels
@@ -53,12 +61,18 @@ export default function Properties({ user, toggleTheme, theme }) {
         }
       });
 
+      // Aggregate global labels
+      (globalLabs || []).forEach(l => {
+        if (newStats[l.property_id]) {
+          newStats[l.property_id].globalLabeled += 1;
+        }
+      });
+
       setStats(newStats);
       setProperties(propList);
       setLoading(false);
 
       // Auto-select first property with unlabeled sentences
-      // Only set if not already selected to avoid jumping around
       if (!selected) {
         const firstIncomplete = propList.find(p => {
           const s = newStats[p.id];
@@ -67,6 +81,8 @@ export default function Properties({ user, toggleTheme, theme }) {
 
         if (firstIncomplete) {
           setSelected(firstIncomplete.id);
+        } else if (propList.length > 0) {
+          setSelected(propList[0].id);
         }
       }
     };
@@ -75,41 +91,72 @@ export default function Properties({ user, toggleTheme, theme }) {
   }, [user.id]);
 
   const getProgress = (pid) => {
-    const s = stats[pid] || { total: 0, labeled: 0 };
+    const s = stats[pid] || { total: 0, labeled: 0, globalLabeled: 0 };
     const pct = s.total > 0 ? Math.round((s.labeled / s.total) * 100) : 0;
-    return { ...s, pct };
+    const globalPct = s.total > 0 ? Math.round((s.globalLabeled / s.total) * 100) : 0;
+    const isGloballyFinished = s.total > 0 && s.globalLabeled >= s.total;
+    const isUserFinished = s.total > 0 && s.labeled >= s.total;
+    return { ...s, pct, globalPct, isGloballyFinished, isUserFinished };
   };
 
   const updateProgress = async () => {
     if (!selected) return;
-    const { count, error } = await supabase
+    
+    // Update user stats
+    const { count: userCount, error: uErr } = await supabase
       .from('labels')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('property_id', selected);
     
-    if (!error) {
+    // Update global stats for this property
+    const { count: globalCount, error: gErr } = await supabase
+      .from('sentences')
+      .select('*', { count: 'exact', head: true })
+      .eq('property_id', selected)
+      .gt('label_count', 0);
+
+    if (!uErr && !gErr) {
       setStats(prev => ({
         ...prev,
         [selected]: {
           ...prev[selected],
-          labeled: count
+          labeled: userCount,
+          globalLabeled: globalCount
         }
       }));
     }
   };
 
+  const sortedAndFilteredProperties = properties
+    .filter(p => {
+      if (!hideGloballyLabeled) return true;
+      const { isGloballyFinished } = getProgress(p.id);
+      return !isGloballyFinished;
+    })
+    .sort((a, b) => {
+      const progA = getProgress(a.id);
+      const progB = getProgress(b.id);
+      
+      // If one is finished by user and other isn't, move finished to bottom
+      if (progA.isUserFinished && !progB.isUserFinished) return 1;
+      if (!progA.isUserFinished && progB.isUserFinished) return -1;
+      
+      // Otherwise keep original order (by name, as fetched)
+      return 0;
+    });
+
   const selectedProperty = properties.find(p => p.id === selected);
 
   const handleNextProperty = () => {
-    const currentIndex = properties.findIndex(p => p.id === selected);
-    if (currentIndex >= 0 && currentIndex < properties.length - 1) {
-      const nextProp = properties[currentIndex + 1];
+    const currentIndex = sortedAndFilteredProperties.findIndex(p => p.id === selected);
+    if (currentIndex >= 0 && currentIndex < sortedAndFilteredProperties.length - 1) {
+      const nextProp = sortedAndFilteredProperties[currentIndex + 1];
       setSelected(nextProp.id);
       alert(`Moving to next property: ${nextProp.name}`);
     } else {
-      alert('No more properties available!');
-      setSelected(null);
+      alert('No more properties available in current view!');
+      // Don't deselect, just stay on current or let user pick
     }
   };
 
@@ -153,7 +200,19 @@ export default function Properties({ user, toggleTheme, theme }) {
 
       <main className="main-content">
         <div className="card property-selector">
-          <label htmlFor="property-select" className="label-heading">Select Property</label>
+          <div className="property-selector-header">
+            <label htmlFor="property-select" className="label-heading">Select Property</label>
+            <div className="filter-controls">
+              <label className="checkbox-label" title="Hide properties where every sentence has at least one label from any user">
+                <input 
+                  type="checkbox" 
+                  checked={hideGloballyLabeled} 
+                  onChange={(e) => setHideGloballyLabeled(e.target.checked)}
+                />
+                <span>Hide globally labeled</span>
+              </label>
+            </div>
+          </div>
           <div className="select-wrapper">
             {loading ? (
               <div className="loading-dropdown">Loading properties...</div>
@@ -165,11 +224,13 @@ export default function Properties({ user, toggleTheme, theme }) {
                 onChange={(e) => setSelected(e.target.value ? Number(e.target.value) : null)}
               >
                 <option value="">-- Choose a property --</option>
-                {properties.map(p => {
-                  const { total, labeled, pct } = getProgress(p.id);
+                {sortedAndFilteredProperties.map(p => {
+                  const { total, labeled, pct, isUserFinished, isGloballyFinished } = getProgress(p.id);
                   return (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({labeled}/{total} - {pct}%)
+                      {p.name + ' '}
+                      {isUserFinished ? '✅ ' : ''}
+                      {isGloballyFinished ? '🌐 ' : ''} ({labeled}/{total} - {pct}%)
                     </option>
                   );
                 })}
@@ -179,10 +240,44 @@ export default function Properties({ user, toggleTheme, theme }) {
           
           {selectedProperty && (
             <div className="property-details">
+              <div className="property-title-row">
+                <h2 className="property-name-display">
+                  {selectedProperty.iri ? (
+                    <a href={selectedProperty.iri} target="_blank" rel="noopener noreferrer" title="View Property in DBpedia">
+                      {selectedProperty.name} 🔗
+                    </a>
+                  ) : (
+                    selectedProperty.name
+                  )}
+                </h2>
+              </div>
+
+              {selectedProperty.description && (
+                <div className="property-description-box">
+                  <p>{selectedProperty.description}</p>
+                </div>
+              )}
+
               <div className="property-info">
-                <span className="badge domain">{selectedProperty.domain}</span>
+                <span className="badge domain">
+                  {selectedProperty.domain_link ? (
+                    <a href={selectedProperty.domain_link} target="_blank" rel="noopener noreferrer">
+                      {selectedProperty.domain}
+                    </a>
+                  ) : (
+                    selectedProperty.domain
+                  )}
+                </span>
                 <span className="arrow">→</span>
-                <span className="badge range">{selectedProperty.range}</span>
+                <span className="badge range">
+                  {selectedProperty.range_link ? (
+                    <a href={selectedProperty.range_link} target="_blank" rel="noopener noreferrer">
+                      {selectedProperty.range}
+                    </a>
+                  ) : (
+                    selectedProperty.range
+                  )}
+                </span>
               </div>
               
               <div className="progress-section">
