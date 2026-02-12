@@ -19,6 +19,9 @@ export default function Login({ message, theme, toggleTheme }) {
   const [loading, setLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
+  useEffect(() => {
+    if (!showGuidelines) return;
+    setGuidelinesLoading(true);
     setGuidelinesHtml(guidelinesHtmlAsset || null);
     const isDark = document.body.classList.contains('dark-mode');
     setGuidelinesTheme(isDark ? 'dark' : 'light');
