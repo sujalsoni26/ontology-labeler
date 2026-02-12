@@ -11,7 +11,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentLabel, setCurrentLabel] = useState(null);
-  const [sortMode, setSortMode] = useState('least_labeled');
+  const [sortMode, setSortMode] = useState('unlabeled'); // 'unlabeled', 'least_labeled', or 'all'
   const [totalCount, setTotalCount] = useState(0);
   const [allSentenceIds, setAllSentenceIds] = useState([]);
   
@@ -32,10 +32,16 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
 
       try {
         // 1. Fetch total count of sentences for this property
-        const { count, error: cErr } = await supabase
+        let countQuery = supabase
           .from('sentences')
           .select('*', { count: 'exact', head: true })
           .eq('property_id', propertyId);
+        
+        if (sortMode === 'unlabeled') {
+          countQuery = countQuery.eq('label_count', 0);
+        }
+
+        const { count, error: cErr } = await countQuery;
         
         if (cErr) throw cErr;
         if (mounted) setTotalCount(count || 0);
@@ -46,6 +52,10 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
           .select('id')
           .eq('property_id', propertyId);
         
+        if (sortMode === 'unlabeled') {
+          idQuery = idQuery.eq('label_count', 0);
+        }
+
         if (sortMode === 'least_labeled') {
           idQuery = idQuery
             .order('label_count', { ascending: true, nullsFirst: false })
@@ -94,6 +104,10 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
           .from('sentences')
           .select('*')
           .eq('property_id', propertyId);
+
+        if (mode === 'unlabeled') {
+          query = query.eq('label_count', 0);
+        }
 
         if (mode === 'least_labeled') {
           query = query
@@ -225,28 +239,29 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
       alert("No more unlabeled sentences found!");
   };
 
-  const handleSaved = async (isNew) => {
+  const handleSaved = async (delta) => {
     const currentSentence = sentences[currentIndex];
     if (!currentSentence) return;
 
     // 1. Update Counts
     let newCount = (currentSentence.label_count || 0);
-    if (isNew) {
-        newCount += 1;
-        // Use RPC to safely increment count (bypassing RLS issues and race conditions)
+    if (delta !== 0) {
+        newCount = Math.max(0, newCount + delta);
+        
+        const rpcName = delta > 0 ? 'increment_label_count' : 'decrement_label_count';
         const { error: updateError } = await supabase
-          .rpc('increment_label_count', { sentence_id_input: currentSentence.id });
+          .rpc(rpcName, { sentence_id_input: currentSentence.id });
         
         if (updateError) {
-          console.error("Failed to increment label count:", updateError);
-          // Fallback to direct update if RPC fails (e.g. function not created yet)
-          // preventing the app from breaking completely while migration is pending
-          if (updateError.code === '42883') { // undefined_function
-             console.log("Falling back to direct update...");
-             await supabase
-              .from('sentences')
-              .update({ label_count: newCount })
-              .eq('id', currentSentence.id);
+          console.error(`Failed to ${delta > 0 ? 'increment' : 'decrement'} label count via RPC:`, updateError);
+          // Fallback to direct update
+          const { error: directError } = await supabase
+            .from('sentences')
+            .update({ label_count: newCount })
+            .eq('id', currentSentence.id);
+          
+          if (directError) {
+            console.error("Fallback direct update also failed:", directError);
           }
         }
     }
@@ -275,7 +290,27 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
   if (error) return <div className="error">{error}</div>;
   
   // Show empty state only if we really have 0 total sentences
-  if (totalCount === 0) return <div className="empty-state">No sentences found for this property.</div>;
+  if (totalCount === 0) {
+     return (
+       <div className="labeling-session">
+         <div className="toolbar">
+           <div className="filter-control">
+             <span style={{ marginRight: '8px', fontWeight: 500, whiteSpace: 'nowrap' }}>Mode:</span>
+             <select 
+                value={sortMode} 
+                onChange={e => setSortMode(e.target.value)}
+                className="filter-select"
+              >
+                <option value="unlabeled">Unlabeled Only</option>
+                <option value="least_labeled">Least Labeled</option>
+                <option value="all">All Sentences</option>
+              </select>
+           </div>
+         </div>
+         <div className="empty-state">No sentences found matching the current mode.</div>
+       </div>
+     );
+   }
 
   const safeIndex = Math.min(currentIndex, Math.max(0, totalCount - 1));
   const currentSentence = sentences[safeIndex];
@@ -287,12 +322,13 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
     <div className="labeling-session">
       <div className="toolbar">
         <div className="filter-control">
-          <span style={{ marginRight: '8px', fontWeight: 500, whiteSpace: 'nowrap' }}>Sort by:</span>
+          <span style={{ marginRight: '8px', fontWeight: 500, whiteSpace: 'nowrap' }}>Mode:</span>
           <select 
             value={sortMode} 
             onChange={e => setSortMode(e.target.value)}
             className="filter-select"
           >
+            <option value="unlabeled">Unlabeled Only</option>
             <option value="least_labeled">Least Labeled</option>
             <option value="all">All Sentences</option>
           </select>

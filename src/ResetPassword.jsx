@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { supabase } from './supabase';
+import PasswordInput from './PasswordInput';
 
 export default function ResetPassword({ onComplete }) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,36 +49,25 @@ export default function ResetPassword({ onComplete }) {
 
           <div className="input-group">
             <label htmlFor="new-password">New Password</label>
-            <div className="password-input-wrapper">
-              <input
-                id="new-password"
-                type={showPassword ? "text" : "password"}
-                className="input-field"
-                placeholder="At least 6 characters"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button 
-                type="button" 
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
-              </button>
-            </div>
+            <PasswordInput
+              id="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              required
+              autoComplete="new-password"
+            />
           </div>
 
           <div className="input-group">
             <label htmlFor="confirm-password">Confirm Password</label>
-            <input
+            <PasswordInput
               id="confirm-password"
-              type={showPassword ? "text" : "password"}
-              className="input-field"
-              placeholder="Repeat your new password"
-              required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Repeat your new password"
+              required
+              autoComplete="new-password"
             />
           </div>
 

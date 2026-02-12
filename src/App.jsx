@@ -3,6 +3,8 @@ import { supabase } from './supabase';
 import Login from './Login';
 import Properties from './Properties';
 import ResetPassword from './ResetPassword';
+import Sidebar from './Sidebar';
+import GuidelinesModal from './GuidelinesModal';
 
 const BYPASS_AUTH = false;
 export default function App() {
@@ -13,6 +15,11 @@ export default function App() {
   const [isVerificationCallback, setIsVerificationCallback] = useState(false);
   const [isRecoveryFlow, setIsRecoveryFlow] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  const [view, setView] = useState('labeling');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showGuidelines, setShowGuidelines] = useState(false);
+  const [guidelinesTheme, setGuidelinesTheme] = useState('dark');
+  
   const inactivityTimer = useRef(null);
   const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000;
 
@@ -57,6 +64,11 @@ export default function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      
+      // Close sidebar on login/logout
+      if (_event === 'SIGNED_IN' || _event === 'SIGNED_OUT') {
+        setSidebarOpen(false);
+      }
       
       // If we are the callback tab and just got a session, notify other tabs
       if (_event === 'SIGNED_IN' && isVerificationCallback) {
@@ -150,9 +162,46 @@ export default function App() {
   }
 
   if (!user) {
-    return <Login message={authMessage} />;
+    return <Login message={authMessage} theme={theme} toggleTheme={toggleTheme} />;
   }
-  return <Properties user={user} toggleTheme={toggleTheme} theme={theme} />;
+
+  return (
+    <div className={`app-wrapper ${theme}-mode`}>
+      <button 
+        className="btn-hamburger global-hamburger" 
+        onClick={() => setSidebarOpen(true)} 
+        title="Open Menu"
+      >
+        ☰
+      </button>
+
+      <Sidebar 
+        user={user}
+        view={view}
+        setView={setView}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        setShowGuidelines={setShowGuidelines}
+        setGuidelinesTheme={setGuidelinesTheme}
+      />
+
+      <GuidelinesModal 
+        show={showGuidelines}
+        onClose={() => setShowGuidelines(false)}
+        guidelinesTheme={guidelinesTheme}
+        setGuidelinesTheme={setGuidelinesTheme}
+      />
+
+      <Properties 
+        user={user} 
+        view={view}
+        setView={setView}
+        theme={theme} 
+      />
+    </div>
+  );
 }
 
 

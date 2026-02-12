@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { supabase } from './supabase';
+import { LogOut, ShieldCheck, KeyRound, AlertCircle, CheckCircle2 } from 'lucide-react';
+import PasswordInput from './PasswordInput';
 
-export default function Profile({ user, stats, properties, onBack }) {
+export default function Profile({ user, stats, properties }) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,13 +56,9 @@ export default function Profile({ user, stats, properties, onBack }) {
 
   return (
     <div className="container">
-      <header className="header">
+      <header className="header" style={{ paddingLeft: '20px' }}>
         <div className="header-content">
-          <button className="btn-secondary btn-icon-text" onClick={onBack}>
-             ← Back
-          </button>
           <h1>User Profile</h1>
-          <div style={{ width: '80px' }}></div> {/* Spacer for alignment */}
         </div>
       </header>
 
@@ -92,51 +90,58 @@ export default function Profile({ user, stats, properties, onBack }) {
              </div>
            </div>
 
-           <div className="security-section" style={{ marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-             <h3>Change Password</h3>
-             <form onSubmit={handleChangePassword} style={{ maxWidth: '400px', margin: '0 auto' }}>
-               <div className="input-group">
-                 <label htmlFor="new-password">New Password</label>
-                 <input
-                   id="new-password"
-                   type="password"
-                   className="input-field"
-                   value={newPassword}
-                   onChange={(e) => setNewPassword(e.target.value)}
-                   placeholder="Enter new password"
-                 />
-               </div>
-               <div className="input-group">
-                 <label htmlFor="confirm-password">Confirm Password</label>
-                 <input
-                   id="confirm-password"
-                   type="password"
-                   className="input-field"
-                   value={confirmPassword}
-                   onChange={(e) => setConfirmPassword(e.target.value)}
-                   placeholder="Confirm new password"
-                 />
+           <div className="security-section-enhanced">
+             <div className="security-header">
+               <KeyRound size={20} className="security-icon" />
+               <h3>Change Password</h3>
+             </div>
+
+             <form onSubmit={handleChangePassword} className="password-form-grid">
+               <div className="password-inputs">
+                 <div className="input-group">
+                   <label htmlFor="new-password">New Password</label>
+                   <PasswordInput
+                     id="new-password"
+                     value={newPassword}
+                     onChange={(e) => setNewPassword(e.target.value)}
+                     placeholder="Enter new password"
+                     autoComplete="new-password"
+                   />
+                 </div>
+                 <div className="input-group">
+                   <label htmlFor="confirm-password">Confirm Password</label>
+                   <PasswordInput
+                     id="confirm-password"
+                     value={confirmPassword}
+                     onChange={(e) => setConfirmPassword(e.target.value)}
+                     placeholder="Confirm new password"
+                     autoComplete="new-password"
+                   />
+                 </div>
                </div>
                
                {message.text && (
-                 <div className={`message ${message.type === 'error' ? 'error-message' : 'success-message'}`} style={{ marginBottom: '15px' }}>
-                   {message.text}
+                 <div className={`message-banner ${message.type === 'error' ? 'error' : 'success'}`}>
+                   {message.type === 'error' ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
+                   <span>{message.text}</span>
                  </div>
                )}
 
                <button 
                  type="submit" 
-                 className="btn-primary btn-full"
+                 className="btn-primary btn-update-password"
                  disabled={loading}
                >
-                 {loading ? 'Updating...' : 'Update Password'}
+                 <KeyRound size={18} />
+                 <span>{loading ? 'Updating...' : 'Update Password'}</span>
                </button>
              </form>
            </div>
 
            <div className="profile-actions">
-             <button className="btn-danger btn-logout-large" onClick={handleLogout}>
-               Logout
+             <button className="btn-danger btn-logout-large" onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+               <LogOut size={20} />
+               <span>Logout</span>
              </button>
            </div>
         </div>

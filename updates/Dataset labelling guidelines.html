@@ -1,0 +1,417 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=Generator content="Microsoft Word 15 (filtered)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"Calibri Light";
+	panose-1:2 15 3 2 2 2 4 3 2 4;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:8.0pt;
+	margin-left:0in;
+	line-height:107%;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+h1
+	{mso-style-link:"Heading 1 Char";
+	margin-top:.25in;
+	margin-right:0in;
+	margin-bottom:4.0pt;
+	margin-left:0in;
+	line-height:107%;
+	page-break-after:avoid;
+	font-size:20.0pt;
+	font-family:"Calibri Light",sans-serif;
+	color:#2F5496;
+	font-weight:normal;}
+h2
+	{mso-style-link:"Heading 2 Char";
+	margin-top:8.0pt;
+	margin-right:0in;
+	margin-bottom:4.0pt;
+	margin-left:0in;
+	line-height:107%;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:"Calibri Light",sans-serif;
+	color:#2F5496;
+	font-weight:normal;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:8.0pt;
+	margin-left:.5in;
+	line-height:107%;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+p.MsoListParagraphCxSpFirst, li.MsoListParagraphCxSpFirst, div.MsoListParagraphCxSpFirst
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	line-height:107%;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+p.MsoListParagraphCxSpMiddle, li.MsoListParagraphCxSpMiddle, div.MsoListParagraphCxSpMiddle
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	line-height:107%;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+p.MsoListParagraphCxSpLast, li.MsoListParagraphCxSpLast, div.MsoListParagraphCxSpLast
+	{margin-top:0in;
+	margin-right:0in;
+	margin-bottom:8.0pt;
+	margin-left:.5in;
+	line-height:107%;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+span.Heading1Char
+	{mso-style-name:"Heading 1 Char";
+	mso-style-link:"Heading 1";
+	font-family:"Calibri Light",sans-serif;
+	color:#2F5496;}
+span.Heading2Char
+	{mso-style-name:"Heading 2 Char";
+	mso-style-link:"Heading 2";
+	font-family:"Calibri Light",sans-serif;
+	color:#2F5496;}
+.MsoChpDefault
+	{font-family:"Calibri",sans-serif;}
+.MsoPapDefault
+	{margin-bottom:8.0pt;
+	line-height:107%;}
+@page WordSection1
+	{size:595.3pt 841.9pt;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link="#0563C1" vlink="#954F72" style='word-wrap:break-word'>
+
+<div class=WordSection1>
+
+<h1><span lang=EN-IN>Dataset labelling guidelines</span></h1>
+
+<p class=MsoNormal><span lang=EN-IN>The objective of the dataset is to identify
+how properties in a given ontology are expressed in natural language.</span></p>
+
+<h2><span lang=EN-IN>Definitions</span></h2>
+
+<p class=MsoNormal><b><span lang=EN-IN>Ontology related:</span></b></p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in'><span lang=EN-IN
+style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>Ontology is a modelling of a fragment of the
+world. It is comprised of concepts (classes), relations (properties), rules
+(logical axioms) and instance data.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>A property in an ontology is often associated
+with a domain and range by means of axioms.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>The idea of domain and range are based on their
+set-theoretic definitions.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>The domain of a property is the class or
+collection of classes to which the subject of the property would belong. For
+instance, property ‘birthDate’ has domain ‘Animal’.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>The range of a property is the set of classes or
+datatypes to which the object of the property would belong. For instance, the
+property ‘birthDate’ has range ‘date’ which is a datatype.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>Most properties would have a single class as
+domain and a single class or a datatype as range.</span></p>
+
+<p class=MsoListParagraphCxSpLast style='text-indent:-.25in'><span lang=EN-IN
+style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>Properties connect instances in an ontology and
+instances are assigned classes or datatype labels.</span></p>
+
+<p class=MsoNormal><b><span lang=EN-IN>Property, domain and range compliance</span></b></p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in'><span lang=EN-IN
+style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>First, we try to identify whether the property
+itself appears in the text. The property often will occur in synonymous terms
+and not literally. However, the relation conveyed should be along the same
+lines as the original property implies.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>An entity or its reference, which appears as a
+subject of a property in a given natural language text should be compared with
+the domain defined for that property.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>Compliance with ontology would mean:</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span><span lang=EN-IN>Entity can be said to be of type specified by the
+given domain.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span><span lang=EN-IN>Entity is of type which is a subclass of the
+given domain. </span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span><span lang=EN-IN>For instance, if the entity, “Tom Cruise”,
+appears as the subject of the property ‘birthDate’ then the it complies with
+domain ‘animal’ since ‘Person’ is a subclass of ‘Animal’.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span><span lang=EN-IN>As DBpedia is a general-purpose ontology
+describing common entities in the real world, we will go with common-sense
+checks for verifying this compliance.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span><span lang=EN-IN>For any points of confusion, the DBpedia
+ontology is available on the web and class and property definitions can be
+found from links that are their corresponding IRIs. As far as possible, IRIs
+will be provided while labelling.</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in'><span lang=EN-IN> For
+instance, these IRIs provide a direct link to their detailed description:</span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.5in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span lang=EN-IN>Property: <i>https://dbpedia.org/ontology/doctoralStudent</i></span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.5in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp;
+</span></span><span lang=EN-IN>Class: <i>https://dbpedia.org/ontology/Scientist</i></span></p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>Similarly, an entity or its reference, which
+appears as an object of a property in a given natural language text should be
+compared with the range defined for that property.</span></p>
+
+<p class=MsoListParagraphCxSpLast style='text-indent:-.25in'><span lang=EN-IN
+style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><span lang=EN-IN>Compliance with ontology would be similar with
+one additional consideration. There can be data properties where the object is
+a datatype value so we just have to see if the value as described is of the
+type specified in range.</span></p>
+
+<p class=MsoNormal><b><span lang=EN-IN>Alignment:</span></b></p>
+
+<p class=MsoNormal><span lang=EN-IN>What we mean by alignment is to verify how
+closely a property is expressed in a sentence (or group of sentences) in terms
+of its ontological definition of domain and range.</span></p>
+
+<p class=MsoNormal><span lang=EN-IN>Given a </span>Property(Domain, Range)
+&amp; a sentence (or group of sentences) to label, we provide 5-labels:</p>
+
+<p class=MsoListParagraphCxSpFirst style='text-indent:-.25in'><span lang=EN-IN
+style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Full alignment: p(D, R)</p>
+
+<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
+</span></span>When the property is expressed and the textual entities or their
+references comply with the domain and range.</p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Property and domain are aligned: p(D, ?)</p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Property and range are aligned: p(?, R)</p>
+
+<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
+lang=EN-IN style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Property expressed, but both domain and range do not align: p(?,
+?)</p>
+
+<p class=MsoListParagraphCxSpLast style='text-indent:-.25in'><span lang=EN-IN
+style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>No alignment</p>
+
+<p class=MsoNormal><b><span lang=EN-IN>&nbsp;</span></b></p>
+
+<p class=MsoNormal><b><span lang=EN-IN>Illustrative examples:</span></b></p>
+
+<p class=MsoNormal><span lang=EN-IN>Correct alignment of both domain and range</span></p>
+
+<table class=MsoTableGrid border=1 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;border:none'>
+ <tr>
+  <td width=301 valign=top style='width:225.4pt;border:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><b><span
+  lang=EN-IN>Property(Domain, Range)</span></b></p>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><b><span
+  lang=EN-IN>&nbsp;</span></b></p>
+  </td>
+  <td width=301 valign=top style='width:225.4pt;border:solid windowtext 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><i>dbo:birthDate(<span
+  lang=EN-IN>dbo:Animal, xsd:date)</span></i></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=301 valign=top style='width:225.4pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:8.0pt;line-height:107%'><b>Evidence</b></p>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><b><span
+  lang=EN-IN>&nbsp;</span></b></p>
+  </td>
+  <td width=301 valign=top style='width:225.4pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><i>Feynman
+  was born on May 11, 1918, in New York City,[2] to Lucille (née Phillips), a
+  homemaker, and Melville Arthur Feynman, a sales manager.</i></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=301 valign=top style='width:225.4pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><b><span
+  lang=EN-IN>Subject entity</span></b></p>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><b><span
+  lang=EN-IN>&nbsp;</span></b></p>
+  </td>
+  <td width=301 valign=top style='width:225.4pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><i><span
+  lang=EN-IN>Richard Feynman</span></i></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=301 valign=top style='width:225.4pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><b><span
+  lang=EN-IN>Object entity</span></b></p>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><b><span
+  lang=EN-IN>&nbsp;</span></b></p>
+  </td>
+  <td width=301 valign=top style='width:225.4pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><i>1918-05-11</i></p>
+  </td>
+ </tr>
+ <tr>
+  <td width=301 valign=top style='width:225.4pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><b>Classification
+  label</b></p>
+  </td>
+  <td width=301 valign=top style='width:225.4pt;border-top:none;border-left:
+  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p class=MsoNormal style='margin-bottom:0in;line-height:normal'><i>Since
+  both, the subject and the object entities are compliant with the specified
+  domain and range, we label it as full alignment, P(D,R).</i></p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal><span lang=EN-IN>&nbsp;</span></p>
+
+<p class=MsoNormal><span lang=EN-IN>Similarly, the following cases for each
+property(Domain, Range):</span></p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Arial",sans-serif'>•<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b>dbo:birthplace</b>(<span lang=EN-IN>dbo:Animal</span>, <span
+lang=EN-IN>dbo:Place</span>)</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Arial",sans-serif'>•<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Evidence: Feynman was born on May 11, 1918, in New York City,[2]
+to Lucille (née Phillips), a homemaker, and Melville Arthur Feynman, a sales
+manager.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Arial",sans-serif'>•<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b>dbo:almaMater</b>(<span lang=EN-IN>dbo:Person</span>, <span
+lang=EN-IN>dbo:EducationalInstitution)</span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Arial",sans-serif'>•<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Evidence: Instead, he attended the Massachusetts Institute of
+Technology, where he joined the Pi Lambda Phi fraternity.</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Arial",sans-serif'>•<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Evidence: Feynman received a PhD from Princeton in 1942; his
+thesis advisor was John Archibald Wheeler.</p>
+
+<p class=MsoNormal style='margin-left:.5in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Arial",sans-serif'>•<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><b>dbo:doctoralAdvisor</b>(<span lang=EN-IN>dbo:Scientist, dbo:Person)</span></p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.25in'><span
+lang=EN-IN style='font-family:"Arial",sans-serif'>•<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span>Evidence: Feynman received a PhD from Princeton in 1942; his
+thesis advisor was John Archibald Wheeler.</p>
+
+<p class=MsoNormal><b><span lang=EN-IN>Annotation:</span></b></p>
+
+<p class=MsoNormal><span lang=EN-IN>The spans of the subject and object,
+between which the property (relation) is expressed, are to be marked. Remember
+that the subject could be a valid pronoun and the object could be a numeric or
+non-numeric value.</span></p>
+
+<p class=MsoNormal><span lang=EN-IN>&nbsp;</span></p>
+
+<h2><span lang=EN-IN>Agreement</span></h2>
+
+<p class=MsoNormal><span lang=EN-IN>By accepting this document, you agree to
+using the above guidelines and the ontology descriptions available to the best
+of your abilities to provide your input. If you do not know the response or the
+data seems implausible, you are expected to select the best option or skip, but
+avoid guesswork. You agree not to use any AI model to complete this task.</span></p>
+
+</div>
+
+</body>
+
+</html>

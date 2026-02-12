@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabase';
+import { LayoutDashboard } from 'lucide-react';
 
-export default function Admin({ user, onBack }) {
+export default function Admin({ user }) {
   const [properties, setProperties] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState('');
   const [minLabels, setMinLabels] = useState(1);
+  const [topN, setTopN] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   
@@ -16,17 +20,14 @@ export default function Admin({ user, onBack }) {
     topUsers: []
   });
 
-  if (user?.email !== 'admin@local.auth') {
+  if (user?.email !== 'ontologylabeling@gmail.com') {
     return (
       <div className="container">
         <header className="header">
-          <div className="header-content">
-            <button className="btn-secondary btn-icon-text" onClick={onBack}>
-               ← Back
-            </button>
-            <h1>Access Denied</h1>
-          </div>
-        </header>
+        <div className="header-content" style={{ paddingLeft: '60px' }}>
+          <h1>Access Denied</h1>
+        </div>
+      </header>
         <main className="main-content">
           <div className="card">
              <div className="error-message">You do not have permission to view this page.</div>
@@ -70,34 +71,39 @@ export default function Admin({ user, onBack }) {
             if (row.label_count >= 5) dist[5]++;
         });
 
-        // 4. Top Users
-        // Fetch all labels to aggregate by user_id
-        // Ideally this should be a view or RPC for performance
-        const { data: labels } = await supabase
-            .from('labels')
-            .select('user_id');
-        
-        const userCounts = {};
-        (labels || []).forEach(l => {
-            userCounts[l.user_id] = (userCounts[l.user_id] || 0) + 1;
-        });
+        // 4. Top Users (Using the user_label_stats view)
+        const fetchLimit = parseInt(topN) || 0;
+        if (fetchLimit <= 0) {
+            setStats(prev => ({ ...prev, topUsers: [] }));
+            return;
+        }
 
-        const sortedUsers = Object.entries(userCounts)
-            .map(([id, count]) => ({ id, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 10); // Top 10
+        const { data: topUsers, error: statsError } = await supabase
+            .from('user_label_stats')
+            .select('user_id, email, label_count')
+            .order('label_count', { ascending: false })
+            .limit(fetchLimit);
+
+        if (statsError) {
+            console.error("Error fetching user stats view:", statsError);
+        }
 
         setStats({
             totalSentences: total || 0,
             labeledSentences: labeledCount || 0,
             labelDistribution: dist,
-            topUsers: sortedUsers
+            topUsers: (topUsers || []).map(u => ({
+                id: u.user_id,
+                email: u.email,
+                count: u.label_count
+            }))
         });
     };
 
     loadProps();
     loadStats();
-  }, []);
+    setCurrentPage(1); // Reset to first page when topN changes
+  }, [topN]);
 
   const downloadJSON = (data, filename) => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -110,6 +116,14 @@ export default function Admin({ user, onBack }) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
+  // Pagination logic
+   const effectivePageSize = Math.max(1, parseInt(pageSize) || 10);
+   const totalPages = Math.ceil(stats.topUsers.length / effectivePageSize);
+   const paginatedUsers = stats.topUsers.slice(
+     (currentPage - 1) * effectivePageSize,
+     currentPage * effectivePageSize
+   );
 
   const fetchPropertyData = async (propertyId, minCount = 1) => {
     // 1. Fetch Sentences
@@ -207,12 +221,8 @@ export default function Admin({ user, onBack }) {
   return (
     <div className="container">
       <header className="header">
-        <div className="header-content">
-          <button className="btn-secondary btn-icon-text" onClick={onBack}>
-             ← Back
-          </button>
+        <div className="header-content" style={{ paddingLeft: '30px' }}>
           <h1>Admin Dashboard</h1>
-          <div style={{ width: '80px' }}></div>
         </div>
       </header>
 
@@ -263,9 +273,53 @@ export default function Admin({ user, onBack }) {
                 </div>
             </div>
 
-            <h3 style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
-                Top Contributors
-            </h3>
+            <div className="profile-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                 <h3 style={{ margin: 0 }}>Top Contributors</h3>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                         <label style={{ fontSize: '0.85em', color: 'var(--text-secondary)' }}>Fetch Top:</label>
+                         <input 
+                              type="number"
+                              min="1"
+                              max="1000"
+                              className="no-arrows"
+                              value={topN} 
+                              onChange={(e) => setTopN(e.target.value)}
+                              style={{ 
+                                  width: '60px',
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px', 
+                                  border: '1px solid var(--border-color)',
+                                  background: 'var(--secondary-bg)',
+                                  color: 'var(--text-primary)',
+                                  fontSize: '0.85em'
+                              }}
+                          />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <label style={{ fontSize: '0.85em', color: 'var(--text-secondary)' }}>Page Size:</label>
+                          <input 
+                              type="number"
+                              min="1"
+                              className="no-arrows"
+                              value={pageSize} 
+                              onChange={(e) => {
+                                  setPageSize(e.target.value);
+                                  setCurrentPage(1);
+                              }}
+                              style={{ 
+                                  width: '50px',
+                                  padding: '2px 8px', 
+                                  borderRadius: '4px', 
+                                  border: '1px solid var(--border-color)',
+                                  background: 'var(--secondary-bg)',
+                                  color: 'var(--text-primary)',
+                                  fontSize: '0.85em'
+                              }}
+                          />
+                     </div>
+                 </div>
+             </div>
             <div className="top-users-list">
                 {stats.topUsers.length === 0 ? (
                     <div style={{ padding: '10px', color: 'var(--text-secondary)' }}>No contributions yet.</div>
@@ -273,15 +327,19 @@ export default function Admin({ user, onBack }) {
                     <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' }}>
-                                <th style={{ padding: '8px' }}>User ID</th>
+                                <th style={{ padding: '8px', width: '40px' }}>#</th>
+                                <th style={{ padding: '8px' }}>User Email</th>
                                 <th style={{ padding: '8px', textAlign: 'right' }}>Labels</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {stats.topUsers.map((u, i) => (
+                            {paginatedUsers.map((u, i) => (
                                 <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                    <td style={{ padding: '8px', fontFamily: 'monospace', fontSize: '0.9em' }}>
-                                        {u.id === user.id ? 'You (Admin)' : u.id.slice(0, 8) + '...'}
+                                    <td style={{ padding: '8px', color: 'var(--text-secondary)', fontSize: '0.85em' }}>
+                                        {(currentPage - 1) * effectivePageSize + i + 1}
+                                    </td>
+                                    <td style={{ padding: '8px', fontSize: '0.9em' }}>
+                                        {u.email || (u.id === user.id ? 'You (Admin)' : u.id.slice(0, 8) + '...')}
                                     </td>
                                     <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>{u.count}</td>
                                 </tr>
@@ -290,6 +348,39 @@ export default function Admin({ user, onBack }) {
                     </table>
                 )}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    gap: '15px', 
+                    marginTop: '15px',
+                    paddingTop: '10px',
+                    borderTop: '1px solid var(--border-color)'
+                }}>
+                    <button 
+                        className="btn-secondary" 
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        style={{ padding: '4px 12px', fontSize: '0.85em' }}
+                    >
+                        Previous
+                    </button>
+                    <span style={{ fontSize: '0.85em', color: 'var(--text-secondary)' }}>
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    <button 
+                        className="btn-secondary" 
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        style={{ padding: '4px 12px', fontSize: '0.85em' }}
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </div>
 
         <div className="card profile-card"> {/* Reusing profile-card style for width */}

@@ -1,7 +1,18 @@
 import { supabase } from './supabase';
 import { useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
 
-export default function LabelSentence({ sentence, existingLabel, userId, propertyId, onSaved, onNextUnlabeled, onPrevUnlabeled }) {
+export default function LabelSentence({ 
+  sentence, 
+  existingLabel, 
+  userId, 
+  propertyId, 
+  onSaved, 
+  onNextUnlabeled, 
+  onPrevUnlabeled,
+  total,
+  currentIndex
+}) {
   const [label, setLabel] = useState(existingLabel?.label || null);
   const [mode, setMode] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
@@ -43,15 +54,15 @@ export default function LabelSentence({ sentence, existingLabel, userId, propert
     if (!label) return 'Choose a label';
 
     if (label === 'pdr') {
-      return subject && objectSpan ? null : 'Select subject and object spans';
+      return subject && objectSpan ? null : { type: 'partial', msg: 'Select subject and object spans' };
     }
     if (label === 'pd') {
-      if (!subject) return 'Select subject span';
+      if (!subject) return { type: 'partial', msg: 'Select subject span' };
       if (objectSpan) return 'Clear object span for "pd" (Property Domain)';
       return null;
     }
     if (label === 'pr') {
-      if (!objectSpan) return 'Select object span';
+      if (!objectSpan) return { type: 'partial', msg: 'Select object span' };
       if (subject) return 'Clear subject span for "pr" (Property Range)';
       return null;
     }
@@ -65,12 +76,20 @@ export default function LabelSentence({ sentence, existingLabel, userId, propert
     return null;
   };
 
-  const saveLabel = async () => {
-    const err = validate();
-    if (err) {
-      alert(err);
-      return;
+  const saveLabel = async (forcePartial = false) => {
+    const validation = validate();
+    let isPartial = forcePartial;
+
+    if (!forcePartial && validation) {
+      if (typeof validation === 'object' && validation.type === 'partial') {
+        // We'll handle this via UI now instead of alert
+        return;
+      } else {
+        alert(validation);
+        return;
+      }
     }
+
     const payload = {
       sentence_id: sentence.id,
       user_id: userId,
@@ -80,6 +99,7 @@ export default function LabelSentence({ sentence, existingLabel, userId, propert
       subject_end: subject ? subject.end : null,
       object_start: objectSpan ? objectSpan.start : null,
       object_end: objectSpan ? objectSpan.end : null,
+      is_partial: isPartial,
     };
     const { error } = await supabase
       .from('labels')
@@ -87,10 +107,26 @@ export default function LabelSentence({ sentence, existingLabel, userId, propert
     if (error) {
       alert(error.message);
     } else {
-      // alert('Saved'); // Optional: removed alert for smoother flow
-      if (onSaved) onSaved(!existingLabel);
+      // Signal logic for label_count:
+      // 1: Increment if (new full label) OR (was partial, now full)
+      // -1: Decrement if (was full, now partial)
+      // 0: No change otherwise
+      const wasPartial = existingLabel && existingLabel.is_partial;
+      const wasFull = existingLabel && !existingLabel.is_partial;
+      
+      let delta = 0;
+      if (!isPartial && (!existingLabel || wasPartial)) {
+        delta = 1;
+      } else if (isPartial && wasFull) {
+        delta = -1;
+      }
+      
+      if (onSaved) onSaved(delta);
     }
   };
+
+  const validationResult = validate();
+  const isPartialState = validationResult && typeof validationResult === 'object' && validationResult.type === 'partial';
 
   return (
     <div className="label-sentence-container">
@@ -138,19 +174,20 @@ export default function LabelSentence({ sentence, existingLabel, userId, propert
           >
             {mode === 'object' ? 'Selecting Object...' : 'Select Object'}
           </button>
-          <button className="btn-danger small" onClick={() => setSubject(null)}>Clear Subj</button>
-          <button className="btn-danger small" onClick={() => setObjectSpan(null)}>Clear Obj</button>
+          <button className="btn-danger small" onClick={() => setSubject(null)}>Clear Subject</button>
+          <button className="btn-danger small" onClick={() => setObjectSpan(null)}>Clear Object</button>
         </div>
 
         <div className="label-options">
           <div className="label-header">
             <h3>Alignment Label</h3>
             <button 
-              className="btn-icon" 
+              className="btn-help-text" 
               onClick={() => setShowInfo(!showInfo)}
               title="What is alignment?"
             >
-              ℹ️ Help
+              <Info size={16} />
+              <span>Help</span>
             </button>
           </div>
 
@@ -198,18 +235,43 @@ export default function LabelSentence({ sentence, existingLabel, userId, propert
           </div>
         </div>
 
-        <button className="btn-primary" onClick={saveLabel} style={{ width: '100%' }}>
-          Save Label
-        </button>
+        {isPartialState && (
+          <div className="partial-warning">
+            <span className="warning-icon">⚠️</span>
+            <div className="warning-content">
+              <p>{validationResult.msg}</p>
+              <p className="hint">You can finish the selection or save as partial.</p>
+            </div>
+          </div>
+        )}
 
-        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-             <button className="btn-secondary small" onClick={onPrevUnlabeled} style={{ flex: 1 }}>
-                ← Prev Unlabeled
-             </button>
-             <button className="btn-secondary small" onClick={onNextUnlabeled} style={{ flex: 1 }}>
-                Next Unlabeled →
-             </button>
+        <div className="action-buttons">
+          {isPartialState ? (
+            <button className="btn-warning" onClick={() => saveLabel(true)} style={{ width: '100%' }}>
+              Save as Partial Label
+            </button>
+          ) : (
+            <button 
+              className="btn-primary" 
+              onClick={() => saveLabel(false)} 
+              disabled={!label}
+              style={{ width: '100%' }}
+            >
+              Save Label
+            </button>
+          )}
         </div>
+
+        {onPrevUnlabeled && onNextUnlabeled && (
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <button className="btn-secondary small" onClick={onPrevUnlabeled} style={{ flex: 1 }}>
+              « Prev Unlabeled
+            </button>
+            <button className="btn-secondary small" onClick={onNextUnlabeled} style={{ flex: 1 }}>
+              Next Unlabeled »
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
