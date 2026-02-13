@@ -11,11 +11,12 @@ export default function App() {
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const loadingRef = useRef(true);
   const [authMessage, setAuthMessage] = useState(null);
   const [isVerificationCallback, setIsVerificationCallback] = useState(false);
   const [isRecoveryFlow, setIsRecoveryFlow] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
-  const [view, setView] = useState('labeling');
+  const [view, setView] = useState(() => localStorage.getItem('currentView') || 'labeling');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
   const [guidelinesTheme, setGuidelinesTheme] = useState('dark');
@@ -28,6 +29,10 @@ export default function App() {
     document.body.classList.add(`${theme}-mode`);
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('currentView', view);
+  }, [view]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
@@ -60,6 +65,7 @@ export default function App() {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       setLoading(false);
+      loadingRef.current = false;
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -69,7 +75,12 @@ export default function App() {
       if (_event === 'SIGNED_IN' || _event === 'SIGNED_OUT') {
         setSidebarOpen(false);
       }
-      
+
+      if (_event === 'SIGNED_OUT') {
+        setView('labeling');
+        localStorage.setItem('currentView', 'labeling');
+      }
+
       // If we are the callback tab and just got a session, notify other tabs
       if (_event === 'SIGNED_IN' && isVerificationCallback) {
         const channel = new BroadcastChannel('auth_sync');

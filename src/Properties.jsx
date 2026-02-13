@@ -20,6 +20,7 @@ export default function Properties({ user, view, setView, theme }) {
       const propsPromise = supabase
         .from('properties')
         .select('*')
+        .neq('is_active', false)
         .order('name');
 
       const labsPromise = supabase
@@ -161,7 +162,7 @@ export default function Properties({ user, view, setView, theme }) {
   return (
     <div className="container">
       <header className="header main-header">
-        <div className="header-content" style={{ paddingLeft: '20px' }}>
+        <div className="header-content" style={{ paddingLeft: '60px' }}>
           <h1>Ontology Labeler</h1>
         </div>
       </header>

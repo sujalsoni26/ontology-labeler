@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
-import { UserPlus, Lock, BookOpen, Info, Sun, Moon } from 'lucide-react';
+import { UserPlus, Lock, BookOpen, Info, Sun, Moon, User, Phone } from 'lucide-react';
 import PasswordInput from './PasswordInput';
 const guidelinesPdfUrl = new URL('../updates/Dataset labelling guidelines.pdf', import.meta.url).href;
 import guidelinesHtmlAsset from '../updates/Dataset labelling guidelines.html?raw';
@@ -9,6 +9,8 @@ export default function Login({ message, theme, toggleTheme }) {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [acceptedGuidelines, setAcceptedGuidelines] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
   const [guidelinesHtml, setGuidelinesHtml] = useState(null);
@@ -69,9 +71,26 @@ export default function Login({ message, theme, toggleTheme }) {
     let result;
 
     if (isSignup) {
+      if (!fullName.trim()) {
+        setError('Full Name is required');
+        setLoading(false);
+        return;
+      }
+      if (!acceptedGuidelines) {
+        setError('Please accept the Dataset Labelling Guidelines');
+        setLoading(false);
+        return;
+      }
+
       result = await supabase.auth.signUp({
         email: trimmedEmail,
-        password
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+            phone_number: phone.trim()
+          }
+        }
       });
       
       if (!result.error) {
@@ -144,7 +163,56 @@ export default function Login({ message, theme, toggleTheme }) {
             <div className="status-message" style={{ marginBottom: '15px', textAlign: 'center' }}>{success}</div>
           )}
 
-          
+          {isSignup && (
+            <>
+              <div className="input-group">
+                <label htmlFor="fullName">Full Name</label>
+                <div className="password-input-wrapper">
+                  <input
+                    id="fullName"
+                    name="fullName"
+                    type="text"
+                    className="input-field"
+                    placeholder="Enter your full name"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    style={{ paddingLeft: '40px' }}
+                  />
+                  <User size={18} style={{ position: 'absolute', left: '12px', opacity: 0.6 }} />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="phone">Phone Number (Optional)</label>
+                <div className="password-input-wrapper">
+                  <div className="phone-input-container" style={{ position: 'relative', width: '100%' }}>
+                    <span className="phone-prefix" style={{ 
+                      position: 'absolute', 
+                      left: '40px', 
+                      top: '50%', 
+                      transform: 'translateY(-50%)',
+                      fontSize: '0.9rem',
+                      opacity: 0.8,
+                      fontWeight: '500',
+                      pointerEvents: 'none'
+                    }}>+91</span>
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      className="input-field"
+                      placeholder="Enter your phone number"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      style={{ paddingLeft: '75px' }}
+                    />
+                    <Phone size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.6 }} />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="input-group">
             <label htmlFor="email">Email</label>

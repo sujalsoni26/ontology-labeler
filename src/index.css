@@ -1347,6 +1347,65 @@ input:checked + .slider:before {
   flex-shrink: 0;
 }
 
+.user-email-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.6;
+  margin-top: -8px;
+}
+
+.profile-details-display {
+  background: var(--secondary-bg);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.detail-value {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.placeholder-text {
+  font-style: italic;
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+.edit-profile-btn {
+  font-size: 0.85rem !important;
+  opacity: 0.8;
+}
+
+.edit-profile-btn:hover {
+  opacity: 1;
+}
+
 /* Enhanced Security Section in Profile */
 .security-section-enhanced {
   margin-top: 40px;
