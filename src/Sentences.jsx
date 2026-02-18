@@ -14,6 +14,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
   const [sortMode, setSortMode] = useState('unlabeled'); // 'unlabeled', 'least_labeled', or 'all'
   const [totalCount, setTotalCount] = useState(0);
   const [allSentenceIds, setAllSentenceIds] = useState([]);
+  const [labelThreshold, setLabelThreshold] = useState(1);
   
   // Pagination state
   const [hasMore, setHasMore] = useState(true);
@@ -31,14 +32,35 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
       setLabeledIds(new Set());
 
       try {
-        // 1. Fetch total count of sentences for this property
+        let thresholdValue = 1;
+        try {
+          const { data: setting, error: tErr } = await supabase
+            .from('app_settings')
+            .select('int_value')
+            .eq('key', 'label_threshold')
+            .maybeSingle();
+          if (!tErr && setting && setting.int_value != null) {
+            thresholdValue = setting.int_value;
+          }
+        } catch (tErr) {
+          console.error("Error loading label threshold:", tErr);
+        }
+
+        if (mounted) {
+          setLabelThreshold(thresholdValue);
+        }
+
         let countQuery = supabase
           .from('sentences')
           .select('*', { count: 'exact', head: true })
           .eq('property_id', propertyId);
-        
+
         if (sortMode === 'unlabeled') {
-          countQuery = countQuery.eq('label_count', 0);
+          if (thresholdValue != null && thresholdValue >= 1) {
+            countQuery = countQuery.lt('label_count', thresholdValue);
+          } else {
+            countQuery = countQuery.eq('label_count', 0);
+          }
         }
 
         const { count, error: cErr } = await countQuery;
@@ -46,14 +68,17 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
         if (cErr) throw cErr;
         if (mounted) setTotalCount(count || 0);
 
-        // 1.5 Fetch ALL sentence IDs for this property with current sort mode
         let idQuery = supabase
           .from('sentences')
           .select('id')
           .eq('property_id', propertyId);
-        
+
         if (sortMode === 'unlabeled') {
-          idQuery = idQuery.eq('label_count', 0);
+          if (thresholdValue != null && thresholdValue >= 1) {
+            idQuery = idQuery.lt('label_count', thresholdValue);
+          } else {
+            idQuery = idQuery.eq('label_count', 0);
+          }
         }
 
         if (sortMode === 'least_labeled') {
@@ -106,7 +131,11 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
           .eq('property_id', propertyId);
 
         if (mode === 'unlabeled') {
-          query = query.eq('label_count', 0);
+          if (labelThreshold != null && labelThreshold >= 1) {
+            query = query.lt('label_count', labelThreshold);
+          } else {
+            query = query.eq('label_count', 0);
+          }
         }
 
         if (mode === 'least_labeled') {
@@ -216,7 +245,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
               return;
           }
       }
-      alert("No more unlabeled sentences found!");
+      alert("No more below-threshold sentences found!");
   };
 
   const handlePrevUnlabeled = () => {
@@ -236,7 +265,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
               return;
           }
       }
-      alert("No more unlabeled sentences found!");
+      alert("No more below-threshold sentences found!");
   };
 
   const handleSaved = async (delta) => {
@@ -301,7 +330,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
                 onChange={e => setSortMode(e.target.value)}
                 className="filter-select"
               >
-                <option value="unlabeled">Unlabeled Only</option>
+                <option value="unlabeled">Below Threshold</option>
                 <option value="least_labeled">Least Labeled</option>
                 <option value="all">All Sentences</option>
               </select>
@@ -328,7 +357,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
             onChange={e => setSortMode(e.target.value)}
             className="filter-select"
           >
-            <option value="unlabeled">Unlabeled Only</option>
+            <option value="unlabeled">Below Threshold</option>
             <option value="least_labeled">Least Labeled</option>
             <option value="all">All Sentences</option>
           </select>

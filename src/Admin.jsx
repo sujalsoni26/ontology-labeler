@@ -27,13 +27,22 @@ export default function Admin({ user }) {
     localStorage.setItem('adminActiveTab', activeTab);
   }, [activeTab]);
   
-  // Stats state
   const [stats, setStats] = useState({
     totalSentences: 0,
     labeledSentences: 0,
     labelDistribution: { 1: 0, 2: 0, 3: 0, 5: 0 },
-    topUsers: []
+    topUsers: [],
+    completedPropertyCount: 0,
+    completedProperties: []
   });
+  const [labelThreshold, setLabelThreshold] = useState(1);
+  const [thresholdSaving, setThresholdSaving] = useState(false);
+  const [thresholdStatus, setThresholdStatus] = useState('');
+  const [customK, setCustomK] = useState('');
+  const [customKCount, setCustomKCount] = useState(null);
+  const [customKLoading, setCustomKLoading] = useState(false);
+  const [customKError, setCustomKError] = useState('');
+  const [showCompletedProps, setShowCompletedProps] = useState(false);
 
   const hasChanges = Object.keys(pendingChanges).length > 0;
 
@@ -71,6 +80,22 @@ export default function Admin({ user }) {
   };
 
   useEffect(() => {
+    const loadThreshold = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('app_settings')
+          .select('int_value')
+          .eq('key', 'label_threshold')
+          .maybeSingle();
+        if (!error && data && data.int_value != null) {
+          setLabelThreshold(data.int_value);
+        }
+      } catch (err) {
+        console.error("Error loading label threshold:", err);
+      }
+    };
+
+    loadThreshold();
     loadProps();
     
     const loadStats = async () => {
@@ -102,7 +127,7 @@ export default function Admin({ user }) {
         // 4. Top Users (Using the profiles table directly)
         const fetchLimit = parseInt(topN) || 0;
         if (fetchLimit <= 0) {
-            setStats(prev => ({ ...prev, topUsers: [] }));
+            setStats(prev => ({ ...prev, topUsers: [], completedPropertyCount: 0, completedProperties: [] }));
             return;
         }
 
@@ -117,6 +142,45 @@ export default function Admin({ user }) {
             console.error("Error fetching top contributors from profiles:", profilesError);
         }
 
+        // 5. Completed properties (using global threshold)
+        let completedPropertyNames = [];
+        try {
+          const threshold = parseInt(labelThreshold) || 1;
+
+          const { data: props, error: propsErr } = await supabase
+            .from('properties')
+            .select('id, name, sentence_count')
+            .neq('is_active', false);
+
+          if (propsErr) {
+            console.error("Error loading properties for completion stats:", propsErr);
+          } else {
+            const { data: completedSents, error: compErr } = await supabase
+              .from('sentences')
+              .select('property_id, id')
+              .gte('label_count', threshold);
+
+            if (compErr) {
+              console.error("Error loading completed sentences for stats:", compErr);
+            } else {
+              const byProp = {};
+              (completedSents || []).forEach(row => {
+                byProp[row.property_id] = (byProp[row.property_id] || 0) + 1;
+              });
+
+              completedPropertyNames = (props || [])
+                .filter(p => {
+                  const total = p.sentence_count || 0;
+                  const done = byProp[p.id] || 0;
+                  return total > 0 && done >= total;
+                })
+                .map(p => p.name);
+            }
+          }
+        } catch (err) {
+          console.error("Error computing completed properties:", err);
+        }
+
         setStats({
             totalSentences: total || 0,
             labeledSentences: labeledCount || 0,
@@ -126,13 +190,71 @@ export default function Admin({ user }) {
                 name: p.full_name && p.full_name.trim() !== '' ? p.full_name : '-',
                 email: p.email || '-',
                 count: p.total_labels || 0
-            }))
+            })),
+            completedPropertyCount: completedPropertyNames.length,
+            completedProperties: completedPropertyNames
         });
     };
 
     loadStats();
     setCurrentPage(1); // Reset to first page when topN changes
   }, [topN]);
+
+  const handleCustomKQuery = async () => {
+    setCustomKError('');
+    setCustomKCount(null);
+
+    const parsed = parseInt(customK);
+    if (Number.isNaN(parsed) || parsed < 1) {
+      setCustomKError('K must be an integer ≥ 1.');
+      return;
+    }
+
+    setCustomKLoading(true);
+    try {
+      const { count, error } = await supabase
+        .from('sentences')
+        .select('*', { count: 'exact', head: true })
+        .gte('label_count', parsed);
+      if (error) {
+        console.error("Error fetching redundancy for custom K:", error);
+        setCustomKError('Error fetching redundancy for this K.');
+      } else {
+        setCustomKCount(count || 0);
+      }
+    } catch (err) {
+      console.error("Error fetching redundancy for custom K:", err);
+      setCustomKError('Error fetching redundancy for this K.');
+    } finally {
+      setCustomKLoading(false);
+    }
+  };
+
+  const handleThresholdSave = async () => {
+    const parsed = parseInt(labelThreshold);
+    if (Number.isNaN(parsed) || parsed < 1) {
+      setThresholdStatus('Threshold must be an integer ≥ 1.');
+      return;
+    }
+    setThresholdSaving(true);
+    setThresholdStatus('Saving threshold...');
+    try {
+      const { error } = await supabase
+        .from('app_settings')
+        .upsert({ key: 'label_threshold', int_value: parsed });
+      if (error) {
+        console.error("Error saving label threshold:", error);
+        setThresholdStatus('Error saving threshold.');
+      } else {
+        setThresholdStatus('Threshold updated.');
+      }
+    } catch (err) {
+      console.error("Error saving label threshold:", err);
+      setThresholdStatus('Error saving threshold.');
+    } finally {
+      setThresholdSaving(false);
+    }
+  };
 
   const handleToggleVisibility = (propId, currentIsActive) => {
     setPendingChanges(prev => {
@@ -454,7 +576,41 @@ export default function Admin({ user }) {
                     </span>
                     <span className="stat-label">Coverage</span>
                 </div>
+                <div className="stat-item">
+                    <span className="stat-value">{stats.completedPropertyCount}</span>
+                    <span className="stat-label">Properties fully labeled (global threshold)</span>
+                    {stats.completedPropertyCount > 0 && (
+                      <button
+                        className="btn-secondary"
+                        onClick={() => setShowCompletedProps(prev => !prev)}
+                        style={{ marginTop: '8px', fontSize: '0.8em', padding: '4px 8px' }}
+                      >
+                        {showCompletedProps ? 'Hide Property List' : 'View Properties'}
+                      </button>
+                    )}
+                </div>
             </div>
+
+            {showCompletedProps && stats.completedProperties.length > 0 && (
+              <div 
+                className="top-users-list" 
+                style={{ 
+                  marginTop: '10px', 
+                  padding: '10px', 
+                  borderTop: '1px solid var(--border-color)',
+                  fontSize: '0.9em'
+                }}
+              >
+                <div style={{ marginBottom: '6px', color: 'var(--text-secondary)' }}>
+                  Fully labeled properties (total {stats.completedPropertyCount}):
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '18px' }}>
+                  {stats.completedProperties.map(name => (
+                    <li key={name}>{name}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <h3 style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
                 Redundancy (Sentences labeled ≥ K times)
@@ -476,6 +632,57 @@ export default function Admin({ user }) {
                     <span className="stat-value">{stats.labelDistribution[5]}</span>
                     <span className="stat-label">≥ 5</span>
                 </div>
+            </div>
+
+            <div 
+              style={{ 
+                marginTop: '10px', 
+                padding: '10px', 
+                borderRadius: '8px', 
+                border: '1px solid var(--border-color)',
+                background: 'var(--secondary-bg)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.85em', color: 'var(--text-secondary)' }}>
+                  Custom redundancy (sentences with labels ≥ K):
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  className="no-arrows"
+                  value={customK}
+                  onChange={e => setCustomK(e.target.value)}
+                  style={{ 
+                    width: '70px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--border-color)',
+                    background: 'var(--primary-bg)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.85em'
+                  }}
+                />
+                <button
+                  className="btn-secondary"
+                  onClick={handleCustomKQuery}
+                  disabled={customKLoading}
+                  style={{ padding: '4px 10px', fontSize: '0.8em' }}
+                >
+                  {customKLoading ? 'Loading…' : 'View'}
+                </button>
+              </div>
+              {customKError && (
+                <div style={{ fontSize: '0.8em', color: 'var(--danger-color)' }}>
+                  {customKError}
+                </div>
+              )}
+              {customKCount != null && !customKError && (
+                <div style={{ fontSize: '0.85em', color: 'var(--text-secondary)' }}>
+                  Sentences labeled at least {parseInt(customK, 10)} time{parseInt(customK, 10) === 1 ? '' : 's'}:{" "}
+                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>{customKCount}</span>
+                </div>
+              )}
             </div>
 
             <div className="profile-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '30px' }}>
@@ -635,6 +842,55 @@ export default function Admin({ user }) {
                 <RefreshCcw size={18} className={loading ? 'spin' : ''} />
               </button>
             </div>
+
+            <div 
+              className="profile-header" 
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginTop: '20px'
+              }}
+            >
+              <div>
+                <h3 style={{ margin: 0 }}>Global Sentence Threshold</h3>
+                <p className="label-desc" style={{ marginTop: '4px', maxWidth: '420px' }}>
+                  Controls which sentences appear in the “Below Threshold” mode and which properties
+                  are treated as fully labeled.
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input
+                  type="number"
+                  min="1"
+                  className="no-arrows"
+                  value={labelThreshold}
+                  onChange={(e) => setLabelThreshold(e.target.value)}
+                  style={{
+                    width: '70px',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--border-color)',
+                    background: 'var(--secondary-bg)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.9em'
+                  }}
+                />
+                <button
+                  className="btn-secondary"
+                  onClick={handleThresholdSave}
+                  disabled={thresholdSaving}
+                  style={{ padding: '6px 12px', fontSize: '0.85em' }}
+                >
+                  {thresholdSaving ? 'Saving…' : 'Save'}
+                </button>
+              </div>
+            </div>
+            {thresholdStatus && (
+              <div style={{ marginTop: '6px', fontSize: '0.8em', color: 'var(--text-secondary)' }}>
+                {thresholdStatus}
+              </div>
+            )}
 
             <div className="visibility-controls" style={{ marginTop: '20px' }}>
               <div className="search-bar" style={{ position: 'relative', marginBottom: '15px' }}>

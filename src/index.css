@@ -495,8 +495,9 @@ input:checked + .slider:before {
 .guidelines-html {
   width: 100%;
   height: 100%;
+  overflow: auto;
+  padding: 16px;
 }
-
 /* Hide number input arrows */
 .no-arrows::-webkit-outer-spin-button,
 .no-arrows::-webkit-inner-spin-button {
@@ -507,10 +508,6 @@ input:checked + .slider:before {
 .no-arrows {
   -moz-appearance: textfield;
 }
-  overflow: auto;
-  padding: 16px;
-}
-
 .guidelines-html a {
   color: var(--guidelines-link, inherit);
 }

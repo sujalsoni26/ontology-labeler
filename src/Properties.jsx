@@ -13,10 +13,26 @@ export default function Properties({ user, view, setView, theme }) {
   const [loading, setLoading] = useState(true);
   const [hideGloballyLabeled, setHideGloballyLabeled] = useState(true);
   const [sortBy, setSortBy] = useState('completion'); // 'alphabetical', 'completion'
+  const [labelThreshold, setLabelThreshold] = useState(1);
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      let thresholdValue = 1;
+      try {
+        const { data: setting, error: tErr } = await supabase
+          .from('app_settings')
+          .select('int_value')
+          .eq('key', 'label_threshold')
+          .maybeSingle();
+        if (!tErr && setting && setting.int_value != null) {
+          thresholdValue = setting.int_value;
+        }
+      } catch (tErr) {
+        console.error("Error loading label threshold:", tErr);
+      }
+
+      setLabelThreshold(thresholdValue);
       const propsPromise = supabase
         .from('properties')
         .select('*')
@@ -31,7 +47,7 @@ export default function Properties({ user, view, setView, theme }) {
       const globalProgressPromise = supabase
         .from('sentences')
         .select('property_id, id')
-        .gt('label_count', 0);
+        .gte('label_count', thresholdValue);
       
       const [
         { data: props, error: pErr },
@@ -92,7 +108,7 @@ export default function Properties({ user, view, setView, theme }) {
       .from('sentences')
       .select('*', { count: 'exact', head: true })
       .eq('property_id', selected)
-      .gt('label_count', 0);
+      .gte('label_count', labelThreshold || 1);
 
     if (!uErr && !gErr) {
       setStats(prev => ({
