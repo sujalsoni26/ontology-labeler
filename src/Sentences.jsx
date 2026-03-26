@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 import LabelSentence from './LabelSentence';
+import { hasExtraAccess, getSentencesCount } from './modelLabelUtils';
 
 const BATCH_SIZE = 10;
 
-export default function Sentences({ propertyId, userId, property, onPropertyFinished, onProgressUpdate }) {
+export default function Sentences({ propertyId, userId, user, property, onPropertyFinished, onProgressUpdate }) {
   const [sentences, setSentences] = useState([]);
   const [labeledIds, setLabeledIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentLabel, setCurrentLabel] = useState(null);
-  const [sortMode, setSortMode] = useState('unlabeled'); // 'unlabeled', 'least_labeled', or 'all'
+  const [currentModelLabel, setCurrentModelLabel] = useState(null);
+  const [sortMode, setSortMode] = useState('unlabeled'); // 'unlabeled', 'least_labeled', 'all', or 'model_labeled'
   const [totalCount, setTotalCount] = useState(0);
   const [allSentenceIds, setAllSentenceIds] = useState([]);
   const [labelThreshold, setLabelThreshold] = useState(1);
+  const [userHasExtraAccess, setUserHasExtraAccess] = useState(false);
   
   // Pagination state
   const [hasMore, setHasMore] = useState(true);
@@ -32,6 +35,12 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
       setLabeledIds(new Set());
 
       try {
+        // Check user extra_access
+        const hasAccess = await hasExtraAccess(userId);
+        if (mounted) {
+          setUserHasExtraAccess(hasAccess);
+        }
+
         let thresholdValue = 1;
         try {
           const { data: setting, error: tErr } = await supabase
@@ -50,53 +59,70 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
           setLabelThreshold(thresholdValue);
         }
 
-        let countQuery = supabase
-          .from('sentences')
-          .select('*', { count: 'exact', head: true })
-          .eq('property_id', propertyId);
-
-        if (sortMode === 'unlabeled') {
-          if (thresholdValue != null && thresholdValue >= 1) {
-            countQuery = countQuery.lt('label_count', thresholdValue);
-          } else {
-            countQuery = countQuery.eq('label_count', 0);
-          }
-        }
-
-        const { count, error: cErr } = await countQuery;
-        
-        if (cErr) throw cErr;
-        if (mounted) setTotalCount(count || 0);
-
-        let idQuery = supabase
-          .from('sentences')
-          .select('id')
-          .eq('property_id', propertyId);
-
-        if (sortMode === 'unlabeled') {
-          if (thresholdValue != null && thresholdValue >= 1) {
-            idQuery = idQuery.lt('label_count', thresholdValue);
-          } else {
-            idQuery = idQuery.eq('label_count', 0);
-          }
-        }
-
-        if (sortMode === 'least_labeled') {
-          idQuery = idQuery
-            .order('label_count', { ascending: true, nullsFirst: false })
-            .order('id', { ascending: true });
+        // Get total count using RPC for combined counts
+        let countValue = 0;
+        if (sortMode === 'model_labeled') {
+          // Count model_labeled sentences for this property
+          const { count, error: cErr } = await supabase
+            .from('model_labels')
+            .select('*', { count: 'exact', head: true })
+            .eq('property_id', propertyId)
+            .order('check_count', { ascending: true });
+          
+          if (cErr) throw cErr;
+          countValue = count || 0;
         } else {
-          idQuery = idQuery.order('id', { ascending: true });
+          // Use RPC for combined count
+          countValue = await getSentencesCount(propertyId, sortMode, thresholdValue);
         }
-        
-        const { data: idData, error: idErr } = await idQuery;
-        if (idErr) throw idErr;
+
+        if (mounted) setTotalCount(countValue);
+
+        // Get all sentence IDs
+        let idData = [];
+        if (sortMode === 'model_labeled') {
+          // Get model labeled sentences ordered by check_count (least labeled first)
+          const { data, error: idErr } = await supabase
+            .from('model_labels')
+            .select('sentence_id:sentence_id')
+            .eq('property_id', propertyId)
+            .order('check_count', { ascending: true });
+          
+          if (idErr) throw idErr;
+          idData = data.map(x => ({ id: x.sentence_id }));
+        } else {
+          // Get regular sentences
+          let idQuery = supabase
+            .from('sentences')
+            .select('id')
+            .eq('property_id', propertyId);
+
+          if (sortMode === 'unlabeled') {
+            if (thresholdValue != null && thresholdValue >= 1) {
+              idQuery = idQuery.lt('label_count', thresholdValue);
+            } else {
+              idQuery = idQuery.eq('label_count', 0);
+            }
+          }
+
+          if (sortMode === 'least_labeled') {
+            idQuery = idQuery
+              .order('label_count', { ascending: true, nullsFirst: false })
+              .order('id', { ascending: true });
+          } else {
+            idQuery = idQuery.order('id', { ascending: true });
+          }
+          
+          const { data: retrievedData, error: idErr } = await idQuery;
+          if (idErr) throw idErr;
+          idData = retrievedData;
+        }
         
         if (mounted) {
             setAllSentenceIds(idData.map(x => x.id));
         }
 
-        // 2. Fetch all my labeled IDs for this property (Lightweight: only IDs)
+        // Fetch all my labeled IDs for this property
         const { data: lData, error: lErr } = await supabase
           .from('labels')
           .select('sentence_id')
@@ -108,7 +134,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
         const myLabeledIds = new Set(lData.map(l => l.sentence_id));
         if (mounted) setLabeledIds(myLabeledIds);
 
-        // 3. Fetch first batch
+        // Fetch first batch
         await fetchBatch(0, myLabeledIds, sortMode, true);
       } catch (err) {
         if (mounted) setError(err.message);
@@ -121,10 +147,52 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
   }, [propertyId, userId, sortMode]);
 
   const fetchBatch = async (startOffset, excludeSet, mode, isReset = false) => {
-    if (isFetching && !isReset) return; // Prevent dupes, but allow reset
+    if (isFetching && !isReset) return;
     setIsFetching(true);
     
     try {
+      let data = [];
+      
+      if (mode === 'model_labeled') {
+        // Fetch model_labeled sentences
+        const { data: modelLabeledData, error: mError } = await supabase
+          .from('model_labels')
+          .select(`
+            id,
+            sentence_id,
+            sentences(id, text, property_id, label_count),
+            label,
+            subject_start,
+            subject_end,
+            object_start,
+            object_end,
+            model_name,
+            confidence,
+            check_count
+          `)
+          .eq('property_id', propertyId)
+          .order('check_count', { ascending: true })
+          .range(startOffset, startOffset + BATCH_SIZE - 1);
+
+        if (mError) throw mError;
+
+        // Transform to sentences format with model label attached
+        data = modelLabeledData.map(ml => ({
+          ...ml.sentences[0],
+          model_label: {
+            id: ml.id,
+            label: ml.label,
+            subject_start: ml.subject_start,
+            subject_end: ml.subject_end,
+            object_start: ml.object_start,
+            object_end: ml.object_end,
+            model_name: ml.model_name,
+            confidence: ml.confidence,
+            check_count: ml.check_count
+          }
+        }));
+      } else {
+        // Fetch regular sentences
         let query = supabase
           .from('sentences')
           .select('*')
@@ -145,31 +213,73 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
         } else {
           query = query.order('id', { ascending: true });
         }
+        
+        const { data: retrievedData, error: rError } = await query.range(startOffset, startOffset + BATCH_SIZE - 1);
+        if (rError) throw rError;
+        data = retrievedData || [];
+      }
 
-        query = query.range(startOffset, startOffset + BATCH_SIZE - 1);
-
-        const { data, error } = await query;
-        if (error) throw error;
-
-        if (data.length < BATCH_SIZE) {
-          setHasMore(false);
-        }
-
-        setSentences(prev => {
-            if (isReset) return data;
-            // Sparse array update
-            const next = [...prev];
-            data.forEach((item, i) => {
-                next[startOffset + i] = item;
-            });
-            return next;
-        });
+      if (data.length > 0) {
+        setSentences(prev => [...prev, ...data]);
+      }
+      
+      if (data.length < BATCH_SIZE) {
+        setHasMore(false);
+      }
     } catch (err) {
-        console.error("Fetch batch error", err);
+      console.error('Error fetching batch:', err);
     } finally {
-        setIsFetching(false);
+      setIsFetching(false);
     }
   };
+
+  // Load Model Label (if in model_labeled mode)
+  useEffect(() => {
+    const currentSentence = sentences[currentIndex];
+    if (!currentSentence) {
+      setCurrentModelLabel(null);
+      return;
+    }
+
+    // If in model_labeled mode, use the pre-fetched model label
+    if (sortMode === 'model_labeled') {
+      setCurrentModelLabel(currentSentence.model_label || null);
+      
+      // Still try to load user's confirmation label
+      const fetchLabel = async () => {
+        const { data } = await supabase
+          .from('labels')
+          .select('*')
+          .eq('sentence_id', currentSentence.id)
+          .eq('user_id', userId)
+          .maybeSingle(); 
+        
+        setCurrentLabel(data || null);
+      };
+      fetchLabel();
+      return;
+    }
+
+    setCurrentModelLabel(null);
+
+    // For regular modes
+    if (!labeledIds.has(currentSentence.id)) {
+      setCurrentLabel(null);
+      return;
+    }
+
+    const fetchLabel = async () => {
+      const { data } = await supabase
+        .from('labels')
+        .select('*')
+        .eq('sentence_id', currentSentence.id)
+        .eq('user_id', userId)
+        .maybeSingle(); 
+      
+      setCurrentLabel(data || null);
+    };
+    fetchLabel();
+  }, [currentIndex, sentences, labeledIds, userId, sortMode]);
 
   // Ensure current sentence is loaded
   useEffect(() => {
@@ -272,7 +382,6 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
     const currentSentence = sentences[currentIndex];
     if (!currentSentence) return;
 
-    // 1. Update Counts
     let newCount = (currentSentence.label_count || 0);
     if (delta !== 0) {
         newCount = Math.max(0, newCount + delta);
@@ -283,7 +392,6 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
         
         if (updateError) {
           console.error(`Failed to ${delta > 0 ? 'increment' : 'decrement'} label count via RPC:`, updateError);
-          // Fallback to direct update
           const { error: directError } = await supabase
             .from('sentences')
             .update({ label_count: newCount })
@@ -295,13 +403,10 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
         }
     }
 
-    // 2. Update Labeled Set
     const newLabeledIds = new Set(labeledIds);
     newLabeledIds.add(currentSentence.id);
     setLabeledIds(newLabeledIds);
 
-    // 3. UI Update
-    // Update current sentence object in buffer (sparse array compatible)
     setSentences(prev => {
         const next = [...prev];
         if (next[currentIndex]) {
@@ -310,7 +415,6 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
         return next;
     });
     
-    // Advance
     handleNext();
     setCurrentLabel(null);
     if (onProgressUpdate) onProgressUpdate();
@@ -318,7 +422,6 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
 
   if (error) return <div className="error">{error}</div>;
   
-  // Show empty state only if we really have 0 total sentences
   if (totalCount === 0) {
      return (
        <div className="labeling-session">
@@ -333,6 +436,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
                 <option value="unlabeled">Below Threshold</option>
                 <option value="least_labeled">Least Labeled</option>
                 <option value="all">All Sentences</option>
+                {userHasExtraAccess && <option value="model_labeled">Model-Labeled</option>}
               </select>
            </div>
          </div>
@@ -344,8 +448,8 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
   const safeIndex = Math.min(currentIndex, Math.max(0, totalCount - 1));
   const currentSentence = sentences[safeIndex];
   
-  // Active label safety check
   const activeLabel = currentLabel && currentLabel.sentence_id === currentSentence?.id ? currentLabel : null;
+  const activeModelLabel = currentModelLabel?.id === currentSentence?.id ? currentModelLabel : null;
 
   return (
     <div className="labeling-session">
@@ -360,6 +464,7 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
             <option value="unlabeled">Below Threshold</option>
             <option value="least_labeled">Least Labeled</option>
             <option value="all">All Sentences</option>
+            {userHasExtraAccess && <option value="model_labeled">Model-Labeled</option>}
           </select>
         </div>
         <div className="progress-info">
@@ -384,9 +489,11 @@ export default function Sentences({ propertyId, userId, property, onPropertyFini
               key={`${currentSentence.id}:${activeLabel ? activeLabel.id ?? 'none' : 'none'}`} 
               sentence={currentSentence}
               existingLabel={activeLabel}
+              modelLabel={activeModelLabel}
               userId={userId}
               propertyId={propertyId}
               property={property}
+              isModelLabelMode={sortMode === 'model_labeled'}
               onSaved={handleSaved}
               onNextUnlabeled={handleNextUnlabeled}
               onPrevUnlabeled={handlePrevUnlabeled}
