@@ -489,7 +489,7 @@ export default function Sentences({ propertyId, userId, user, property, onProper
           
           <div className="card sentence-card">
             <LabelSentence
-              key={`${currentSentence.id}:${activeLabel ? activeLabel.id ?? 'none' : 'none'}`} 
+              key={`${currentSentence.id}:${activeLabel?.id ?? 'none'}:${activeModelLabel?.id ?? 'none'}`} 
               sentence={currentSentence}
               existingLabel={activeLabel}
               modelLabel={activeModelLabel}
