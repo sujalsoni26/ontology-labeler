@@ -172,7 +172,7 @@ export async function confirmModelLabel(sentenceId, propertyId, userId, labelDat
     // First, save the label as user confirmation
     const { data: labelResult, error: labelErr } = await supabase
       .from('labels')
-      .insert([
+      .upsert(
         {
           sentence_id: sentenceId,
           property_id: propertyId,
@@ -183,8 +183,9 @@ export async function confirmModelLabel(sentenceId, propertyId, userId, labelDat
           object_start: labelData.object_start,
           object_end: labelData.object_end,
           label_source: 'model_confirmed'
-        }
-      ])
+        },
+        { onConflict: 'sentence_id,user_id' }
+      )
       .select();
 
     if (labelErr) throw labelErr;

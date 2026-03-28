@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, ArrowLeftRight } from 'lucide-react';
 import { confirmModelLabel } from './modelLabelUtils';
 
 export default function LabelSentence({ 
@@ -209,6 +209,24 @@ export default function LabelSentence({
           <button className="btn-danger small" onClick={() => setSubject(null)}>Clear Subject</button>
           <button className="btn-danger small" onClick={() => setObjectSpan(null)}>Clear Object</button>
         </div>
+
+        {(subject || objectSpan) && (
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0' }}>
+            <button
+              className="btn-secondary small"
+              onClick={() => {
+                const temp = subject;
+                setSubject(objectSpan);
+                setObjectSpan(temp);
+              }}
+              title="Swap subject and object spans"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <ArrowLeftRight size={14} />
+              <span>Swap Subject ⇄ Object</span>
+            </button>
+          </div>
+        )}
 
         <div className="label-options">
           <div className="label-header">
