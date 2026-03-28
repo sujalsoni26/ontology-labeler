@@ -177,10 +177,12 @@ export default function Sentences({ propertyId, userId, user, property, onProper
         if (mError) throw mError;
 
         // Transform to sentences format with model label attached
+        // Supabase returns foreign-key joined `sentences` as a plain object, NOT an array
         data = modelLabeledData.map(ml => ({
-          ...ml.sentences[0],
+          ...ml.sentences,
           model_label: {
             id: ml.id,
+            sentence_id: ml.sentence_id,
             label: ml.label,
             subject_start: ml.subject_start,
             subject_end: ml.subject_end,
@@ -449,7 +451,8 @@ export default function Sentences({ propertyId, userId, user, property, onProper
   const currentSentence = sentences[safeIndex];
   
   const activeLabel = currentLabel && currentLabel.sentence_id === currentSentence?.id ? currentLabel : null;
-  const activeModelLabel = currentModelLabel?.id === currentSentence?.id ? currentModelLabel : null;
+  // Must compare sentence_id (not the model_labels row id) to match the current sentence
+  const activeModelLabel = currentModelLabel?.sentence_id === currentSentence?.id ? currentModelLabel : null;
 
   return (
     <div className="labeling-session">
