@@ -1,4 +1,4 @@
--- Migration: Create model_labels table and add extra_access to users
+-- Migration: Create model_labels table and add extra_access to profiles
 -- Created: 2026-03-26
 -- Description: Support for AI model-labeled sentences with user confirmation workflow
 
@@ -35,12 +35,11 @@ CREATE INDEX IF NOT EXISTS idx_model_labels_property_id
 CREATE INDEX IF NOT EXISTS idx_model_labels_check_count 
   ON model_labels(check_count);
 
--- 2. Add extra_access column to auth.users (via users table if you have one)
--- If you have a custom users table:
-ALTER TABLE IF EXISTS users ADD COLUMN IF NOT EXISTS extra_access BOOLEAN DEFAULT FALSE;
+-- 2. Add extra_access column to profiles table
+ALTER TABLE IF EXISTS profiles ADD COLUMN IF NOT EXISTS extra_access BOOLEAN DEFAULT FALSE;
 
--- If not, and you're using auth.users directly, you'll need to use user_metadata:
--- This is handled via RLS policies or a separate profile table
+-- If you are using auth.users directly instead of a profiles table,
+-- you can add this column there and adjust the RLS policies accordingly.
 
 -- Create trigger to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_model_labels_updated_at()
@@ -70,8 +69,8 @@ CREATE POLICY IF NOT EXISTS "Extra access users can update check_count"
   ON model_labels FOR UPDATE
   TO authenticated
   USING (
-    (SELECT extra_access FROM users WHERE id = auth.uid()) = TRUE
+    (SELECT extra_access FROM profiles WHERE id = auth.uid()) = TRUE
   )
   WITH CHECK (
-    (SELECT extra_access FROM users WHERE id = auth.uid()) = TRUE
+    (SELECT extra_access FROM profiles WHERE id = auth.uid()) = TRUE
   );

@@ -142,7 +142,7 @@ export async function getUserAgreementRate(userId) {
 export async function hasExtraAccess(userId) {
   try {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('extra_access')
       .eq('id', userId)
       .single();
