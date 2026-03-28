@@ -313,6 +313,7 @@ export default function Properties({ user, view, setView, theme }) {
           <Sentences
             propertyId={selected}
             userId={user?.id}
+            user={user}
             property={selectedProperty}
             onPropertyFinished={handleNextProperty}
             onProgressUpdate={updateProgress}

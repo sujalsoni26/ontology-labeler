@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from './supabase';
 import { LayoutDashboard, Eye, EyeOff, Search, CheckSquare, Square, RefreshCcw } from 'lucide-react';
+import { getUserAgreementRate } from './modelLabelUtils';
 
 export default function Admin({ user }) {
   const [properties, setProperties] = useState([]);
@@ -43,6 +44,8 @@ export default function Admin({ user }) {
   const [customKLoading, setCustomKLoading] = useState(false);
   const [customKError, setCustomKError] = useState('');
   const [showCompletedProps, setShowCompletedProps] = useState(false);
+  const [userAgreementRates, setUserAgreementRates] = useState([]);
+  const [loadingAgreementRates, setLoadingAgreementRates] = useState(false);
 
   const hasChanges = Object.keys(pendingChanges).length > 0;
 
@@ -194,10 +197,13 @@ export default function Admin({ user }) {
             completedPropertyCount: completedPropertyNames.length,
             completedProperties: completedPropertyNames
         });
+
+        // Load user agreement rates
+        await loadUserAgreementRates(topProfiles || []);
     };
 
     loadStats();
-    setCurrentPage(1); // Reset to first page when topN changes
+    setCurrentPage(1);
   }, [topN]);
 
   const handleCustomKQuery = async () => {
@@ -474,6 +480,41 @@ export default function Admin({ user }) {
       setStatus('Error exporting all data.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserAgreementRates = async (topProfiles) => {
+    if (!topProfiles || topProfiles.length === 0) {
+      setUserAgreementRates([]);
+      return;
+    }
+
+    setLoadingAgreementRates(true);
+    try {
+      const rates = [];
+      for (const user of topProfiles) {
+        const agreementData = await getUserAgreementRate(user.id);
+        if (agreementData) {
+          rates.push({
+            id: user.id,
+            name: user.full_name && user.full_name.trim() !== '' ? user.full_name : user.email || 'Unknown',
+            email: user.email || '-',
+            totalConfirmations: agreementData.total_confirmations || 0,
+            agreements: agreementData.agreements || 0,
+            disagreements: agreementData.disagreements || 0,
+            agreementPercentage: agreementData.agreement_percentage || 0
+          });
+        }
+      }
+      // Filter out users with no confirmations and sort by agreement percentage
+      setUserAgreementRates(
+        rates.filter(r => r.totalConfirmations > 0)
+             .sort((a, b) => b.agreementPercentage - a.agreementPercentage)
+      );
+    } catch (err) {
+      console.error("Error loading user agreement rates:", err);
+    } finally {
+      setLoadingAgreementRates(false);
     }
   };
 
@@ -821,6 +862,65 @@ export default function Admin({ user }) {
                         Next
                     </button>
                 </div>
+            )}
+
+            {/* User Agreement Rates Section */}
+            <h3 style={{ marginTop: '30px', borderTop: '1px solid var(--border-color)', paddingTop: '15px' }}>
+              User Agreement with Model-Labeled Confirmations
+            </h3>
+            {loadingAgreementRates ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                Loading agreement rates...
+              </div>
+            ) : userAgreementRates.length === 0 ? (
+              <div style={{ padding: '20px', color: 'var(--text-secondary)' }}>
+                No users have confirmed model-labeled sentences yet.
+              </div>
+            ) : (
+              <div className="top-users-list">
+                <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-color)' }}>
+                      <th style={{ padding: '8px' }}>User</th>
+                      <th style={{ padding: '8px', textAlign: 'right' }}>Confirmations</th>
+                      <th style={{ padding: '8px', textAlign: 'right' }}>Agreements</th>
+                      <th style={{ padding: '8px', textAlign: 'right' }}>Disagreements</th>
+                      <th style={{ padding: '8px', textAlign: 'right' }}>Agreement Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userAgreementRates.map((user) => (
+                      <tr key={user.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <td style={{ padding: '8px', fontSize: '0.9em' }}>
+                          <div style={{ fontWeight: '500' }}>{user.name}</div>
+                          <div style={{ color: 'var(--text-secondary)', fontSize: '0.85em' }}>{user.email}</div>
+                        </td>
+                        <td style={{ padding: '8px', textAlign: 'right', fontSize: '0.9em', fontWeight: 'bold', color: 'var(--primary-color)' }}>
+                          {user.totalConfirmations}
+                        </td>
+                        <td style={{ padding: '8px', textAlign: 'right', fontSize: '0.9em', fontWeight: 'bold', color: '#4caf50' }}>
+                          {user.agreements}
+                        </td>
+                        <td style={{ padding: '8px', textAlign: 'right', fontSize: '0.9em', fontWeight: 'bold', color: '#ff9800' }}>
+                          {user.disagreements}
+                        </td>
+                        <td style={{ padding: '8px', textAlign: 'right', fontSize: '0.9em', fontWeight: 'bold' }}>
+                          <span style={{
+                            backgroundColor: user.agreementPercentage >= 80 ? '#4caf50' : 
+                                           user.agreementPercentage >= 60 ? '#ff9800' : '#f44336',
+                            color: '#fff',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            display: 'inline-block'
+                          }}>
+                            {user.agreementPercentage.toFixed(1)}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}

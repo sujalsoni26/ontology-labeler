@@ -1,31 +1,41 @@
 import { supabase } from './supabase';
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { confirmModelLabel } from './modelLabelUtils';
 
 export default function LabelSentence({ 
   sentence, 
   existingLabel, 
+  modelLabel,
   userId, 
   propertyId, 
   onSaved, 
   onNextUnlabeled, 
   onPrevUnlabeled,
+  isModelLabelMode,
   total,
   currentIndex
 }) {
-  const [label, setLabel] = useState(existingLabel?.label || null);
+  const [label, setLabel] = useState(
+    existingLabel?.label || modelLabel?.label || null
+  );
   const [mode, setMode] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
   const [subject, setSubject] = useState(
     existingLabel && existingLabel.subject_start != null
       ? { start: existingLabel.subject_start, end: existingLabel.subject_end }
+      : modelLabel && modelLabel.subject_start != null
+      ? { start: modelLabel.subject_start, end: modelLabel.subject_end }
       : null
   );
   const [objectSpan, setObjectSpan] = useState(
     existingLabel && existingLabel.object_start != null
       ? { start: existingLabel.object_start, end: existingLabel.object_end }
+      : modelLabel && modelLabel.object_start != null
+      ? { start: modelLabel.object_start, end: modelLabel.object_end }
       : null
   );
+  const [isSaving, setIsSaving] = useState(false);
   const tokens = useMemo(() => sentence.text.split(/\s+/), [sentence.text]);
 
   const pickIndex = (idx) => {
@@ -82,7 +92,6 @@ export default function LabelSentence({
 
     if (!forcePartial && validation) {
       if (typeof validation === 'object' && validation.type === 'partial') {
-        // We'll handle this via UI now instead of alert
         return;
       } else {
         alert(validation);
@@ -90,38 +99,61 @@ export default function LabelSentence({
       }
     }
 
-    const payload = {
-      sentence_id: sentence.id,
-      user_id: userId,
-      property_id: propertyId,
-      label,
-      subject_start: subject ? subject.start : null,
-      subject_end: subject ? subject.end : null,
-      object_start: objectSpan ? objectSpan.start : null,
-      object_end: objectSpan ? objectSpan.end : null,
-      is_partial: isPartial,
-    };
-    const { error } = await supabase
-      .from('labels')
-      .upsert(payload, { onConflict: 'sentence_id,user_id' });
-    if (error) {
-      alert(error.message);
-    } else {
-      // Signal logic for label_count:
-      // 1: Increment if (new full label) OR (was partial, now full)
-      // -1: Decrement if (was full, now partial)
-      // 0: No change otherwise
-      const wasPartial = existingLabel && existingLabel.is_partial;
-      const wasFull = existingLabel && !existingLabel.is_partial;
-      
-      let delta = 0;
-      if (!isPartial && (!existingLabel || wasPartial)) {
-        delta = 1;
-      } else if (isPartial && wasFull) {
-        delta = -1;
+    setIsSaving(true);
+
+    try {
+      if (isModelLabelMode) {
+        // In model label mode, use confirmModelLabel which increments check_count
+        const labelData = {
+          label,
+          subject_start: subject ? subject.start : null,
+          subject_end: subject ? subject.end : null,
+          object_start: objectSpan ? objectSpan.start : null,
+          object_end: objectSpan ? objectSpan.end : null,
+        };
+
+        await confirmModelLabel(sentence.id, propertyId, userId, labelData);
+
+        // In model mode, always count as full label
+        if (onSaved) onSaved(1);
+      } else {
+        // Regular label save
+        const payload = {
+          sentence_id: sentence.id,
+          user_id: userId,
+          property_id: propertyId,
+          label,
+          subject_start: subject ? subject.start : null,
+          subject_end: subject ? subject.end : null,
+          object_start: objectSpan ? objectSpan.start : null,
+          object_end: objectSpan ? objectSpan.end : null,
+          is_partial: isPartial,
+        };
+        const { error } = await supabase
+          .from('labels')
+          .upsert(payload, { onConflict: 'sentence_id,user_id' });
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        const wasPartial = existingLabel && existingLabel.is_partial;
+        const wasFull = existingLabel && !existingLabel.is_partial;
+        
+        let delta = 0;
+        if (!isPartial && (!existingLabel || wasPartial)) {
+          delta = 1;
+        } else if (isPartial && wasFull) {
+          delta = -1;
+        }
+        
+        if (onSaved) onSaved(delta);
       }
-      
-      if (onSaved) onSaved(delta);
+    } catch (err) {
+      console.error('Error saving label:', err);
+      alert('Error saving label: ' + err.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -235,7 +267,7 @@ export default function LabelSentence({
           </div>
         </div>
 
-        {isPartialState && (
+        {isPartialState && !isModelLabelMode && (
           <div className="partial-warning">
             <span className="warning-icon">⚠️</span>
             <div className="warning-content">
@@ -246,21 +278,60 @@ export default function LabelSentence({
         )}
 
         <div className="action-buttons">
-          {isPartialState ? (
+          {isModelLabelMode ? (
+            // Model label mode: show "Confirm Check" button
+            <button 
+              className="btn-primary" 
+              onClick={() => saveLabel(false)}
+              disabled={!label || isSaving}
+              style={{ width: '100%' }}
+            >
+              {isSaving ? 'Confirming...' : 'Confirm Check'}
+            </button>
+          ) : isPartialState ? (
+            // Regular mode with partial state
             <button className="btn-warning" onClick={() => saveLabel(true)} style={{ width: '100%' }}>
               Save as Partial Label
             </button>
           ) : (
+            // Regular mode: Save Label button
             <button 
               className="btn-primary" 
               onClick={() => saveLabel(false)} 
-              disabled={!label}
+              disabled={!label || isSaving}
               style={{ width: '100%' }}
             >
-              Save Label
+              {isSaving ? 'Saving...' : 'Save Label'}
             </button>
           )}
         </div>
+
+        {modelLabel && !isModelLabelMode && (
+          <div className="model-label-info" style={{
+            marginTop: '10px',
+            padding: '10px',
+            backgroundColor: 'var(--secondary-bg)',
+            borderRadius: '4px',
+            fontSize: '0.9rem'
+          }}>
+            <strong>🤖 AI Suggestion:</strong> {modelLabel.label} (Model: {modelLabel.model_name})
+          </div>
+        )}
+
+        {isModelLabelMode && modelLabel && (
+          <div className="model-label-info" style={{
+            marginTop: '10px',
+            padding: '10px',
+            backgroundColor: 'var(--highlight-bg)',
+            borderRadius: '4px',
+            fontSize: '0.9rem',
+            borderLeft: '4px solid var(--primary-color)'
+          }}>
+            <strong>✨ AI-Labeled Sentence</strong><br/>
+            Model: {modelLabel.model_name} | Checks: {modelLabel.check_count}
+            {modelLabel.confidence && <div>Confidence: {(modelLabel.confidence * 100).toFixed(1)}%</div>}
+          </div>
+        )}
 
         {onPrevUnlabeled && onNextUnlabeled && (
           <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
