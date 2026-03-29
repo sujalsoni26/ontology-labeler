@@ -322,22 +322,18 @@ export default function Sentences({ propertyId, userId, user, property, onProper
 
   const handleNext = () => {
     const nextIndex = currentIndex + 1;
-    // Simple wrap around logic
     if (nextIndex < totalCount) {
         setCurrentIndex(nextIndex);
-    } else {
-        // Cycle to start
-        setCurrentIndex(0);
     }
+    // No wrap-around: batches are appended sequentially so jumping to the end
+    // would require all intermediate batches to be loaded first.
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
         setCurrentIndex(currentIndex - 1);
-    } else {
-        // Cycle to last available sentence index
-        setCurrentIndex(Math.max(0, totalCount - 1));
     }
+    // No wrap-around for the same reason.
   };
 
   const handleNextUnlabeled = () => {
@@ -483,6 +479,8 @@ export default function Sentences({ propertyId, userId, user, property, onProper
             className="nav-arrow left" 
             onClick={handlePrev} 
             title="Previous Sentence"
+            disabled={currentIndex === 0}
+            style={{ opacity: currentIndex === 0 ? 0.3 : 1, cursor: currentIndex === 0 ? 'not-allowed' : 'pointer' }}
           >
             &#10094;
           </button>
@@ -511,6 +509,8 @@ export default function Sentences({ propertyId, userId, user, property, onProper
             className="nav-arrow right" 
             onClick={handleNext} 
             title="Next Sentence"
+            disabled={currentIndex >= totalCount - 1}
+            style={{ opacity: currentIndex >= totalCount - 1 ? 0.3 : 1, cursor: currentIndex >= totalCount - 1 ? 'not-allowed' : 'pointer' }}
           >
             &#10095;
           </button>
