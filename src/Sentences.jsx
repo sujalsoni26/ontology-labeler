@@ -222,7 +222,9 @@ export default function Sentences({ propertyId, userId, user, property, onProper
       }
 
       if (data.length > 0) {
-        setSentences(prev => [...prev, ...data]);
+        setSentences(prev => isReset ? data : [...prev, ...data]);
+      } else if (isReset) {
+        setSentences([]);
       }
       
       if (data.length < BATCH_SIZE) {
