@@ -1,0 +1,232 @@
+{
+  "sessions": [
+    {
+      "id": "1776680727152-klo2c",
+      "modelKey": "gemini",
+      "propertyName": "age",
+      "reviews": [
+        {
+          "sentenceIndex": 133,
+          "text": "The skeleton is roughly 66 million years old, and was discovered in May 2014 by paleontologist and professional fossil hunter Walter W. Stein.",
+          "labelCode": "A",
+          "subjectText": "The skeleton",
+          "objectText": "66 million years",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 110,
+          "text": "This team is for England players aged under 21 at the start of the calendar year in which a two-year UEFA European Under-21 Championship campaign begins, so some players can remain with the squad until the age of 23.",
+          "labelCode": "A",
+          "subjectText": "England players",
+          "objectText": "21",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 182,
+          "text": "Rover Scouts in Scouting Ireland are aged between 18 and 26 years of age.",
+          "labelCode": "B",
+          "subjectText": "Rover Scouts in Scouting Ireland",
+          "objectText": "between 18 and 26 years of age",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 43,
+          "text": "In contrast with eggshell fossils, the remains of very young hadrosaurs are actually somewhat common.",
+          "labelCode": "B",
+          "subjectText": "hadrosaurs",
+          "objectText": "very young",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 67,
+          "text": "The bulk of the ridge is built of volcanic rock with reverse magnetic polarity, evidence that the volcano is at least 780,000 years old.",
+          "labelCode": "C",
+          "subjectText": "the volcano",
+          "objectText": "at least 780,000 years old",
+          "verdict": "partial"
+        },
+        {
+          "sentenceIndex": 11,
+          "text": "The most recent volcanic flows are hawaiites and mugearites: they are the post-shield Laupāhoehoe Volcanics, erupted between 65,000 and 4,000 years ago.",
+          "labelCode": "C",
+          "subjectText": "the Laupāhoehoe Volcanics",
+          "objectText": "between 65,000 and 4,000 years ago",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 55,
+          "text": "The volcano is so old that it experienced, and recorded, a reversal of magnetic polarity (a change in the orientation of Earth's magnetic field so that the positions of the North and South poles interchange) that happened 780,000 years ago.",
+          "labelCode": "D",
+          "subjectText": "The volcano",
+          "objectText": "",
+          "verdict": "partial"
+        },
+        {
+          "sentenceIndex": 83,
+          "text": "The focus on career exploration was increased, and, as the years progressed, Exploring focused more on career exploration posts, though outdoor and sports-oriented posts continued to thrive.",
+          "labelCode": "E",
+          "subjectText": "",
+          "objectText": "",
+          "verdict": "correct"
+        }
+      ],
+      "completed": true,
+      "completedAt": "2026-04-20T10:25:27.152Z"
+    },
+    {
+      "id": "1776680855149-ygmsc",
+      "modelKey": "gemini",
+      "propertyName": "almaMater",
+      "reviews": [
+        {
+          "sentenceIndex": 203,
+          "text": "Milne attended the Brockport Normal School (today SUNY Brockport).",
+          "labelCode": "A",
+          "subjectText": "Milne",
+          "objectText": "Brockport Normal School (today SUNY Brockport)",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 20,
+          "text": "She completed her PhD in economics at the Claremont Graduate University in 1998 under the guidance of Cecilia Conrad.",
+          "labelCode": "A",
+          "subjectText": "She",
+          "objectText": "Claremont Graduate University",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 210,
+          "text": "He went on to study law and was admitted to the bar in 1901.",
+          "labelCode": "B",
+          "subjectText": "He",
+          "objectText": "",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 268,
+          "text": "Her worked in the investment and finance sector for 15 years after graduating from college.",
+          "labelCode": "B",
+          "subjectText": "Her",
+          "objectText": "",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 142,
+          "text": "Geometric Duality in Space PhD dissertation, Cornell University (directed by James Edward Oliver).",
+          "labelCode": "C",
+          "subjectText": "",
+          "objectText": "Cornell University",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 47,
+          "text": "in wireless networks with the Queen Mary University of London.",
+          "labelCode": "C",
+          "subjectText": "",
+          "objectText": "Queen Mary University of London",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 275,
+          "text": "Erie County Economic Development Committee (2009-2012) Leadership Erie (graduate) (2010)",
+          "labelCode": "D",
+          "subjectText": "",
+          "objectText": "Leadership Erie",
+          "verdict": "correct"
+        },
+        {
+          "sentenceIndex": 232,
+          "text": "In 2002, Marx participated in a Hebrew University research team, led by prehistoric researcher Naama Goren-Inbar, investigating the Paleolithic site Gesher Banot Yaakov, which was inhabited for about 100,000 years between 850 and 750 thousand years BC.",
+          "labelCode": "E",
+          "subjectText": "",
+          "objectText": "",
+          "verdict": "correct"
+        }
+      ],
+      "completed": true,
+      "completedAt": "2026-04-20T10:27:35.149Z"
+    }
+  ],
+  "summary": {
+    "gemini": {
+      "age": {
+        "reviewedAt": "2026-04-20T10:25:27.152Z",
+        "byLabel": {
+          "A": {
+            "total": 2,
+            "correct": 2,
+            "partial": 0,
+            "incorrect": 0
+          },
+          "B": {
+            "total": 2,
+            "correct": 2,
+            "partial": 0,
+            "incorrect": 0
+          },
+          "C": {
+            "total": 2,
+            "correct": 1,
+            "partial": 1,
+            "incorrect": 0
+          },
+          "D": {
+            "total": 1,
+            "correct": 0,
+            "partial": 1,
+            "incorrect": 0
+          },
+          "E": {
+            "total": 1,
+            "correct": 1,
+            "partial": 0,
+            "incorrect": 0
+          }
+        },
+        "totalSentences": 8,
+        "correctCount": 6,
+        "partialCount": 2,
+        "incorrectCount": 0
+      },
+      "almaMater": {
+        "reviewedAt": "2026-04-20T10:27:35.149Z",
+        "byLabel": {
+          "A": {
+            "total": 2,
+            "correct": 2,
+            "partial": 0,
+            "incorrect": 0
+          },
+          "B": {
+            "total": 2,
+            "correct": 2,
+            "partial": 0,
+            "incorrect": 0
+          },
+          "C": {
+            "total": 2,
+            "correct": 2,
+            "partial": 0,
+            "incorrect": 0
+          },
+          "D": {
+            "total": 1,
+            "correct": 1,
+            "partial": 0,
+            "incorrect": 0
+          },
+          "E": {
+            "total": 1,
+            "correct": 1,
+            "partial": 0,
+            "incorrect": 0
+          }
+        },
+        "totalSentences": 8,
+        "correctCount": 8,
+        "partialCount": 0,
+        "incorrectCount": 0
+      }
+    }
+  }
+}

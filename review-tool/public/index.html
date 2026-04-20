@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ontology Label Review Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --surface2:  #22263a;
+      --border:    #2e3348;
+      --text:      #e4e6f0;
+      --text-muted:#7b82a4;
+      --accent:    #6366f1;
+      --accent-dim:#3730a3;
+      --correct:   #22c55e;
+      --partial:   #f59e0b;
+      --incorrect: #ef4444;
+      --radius:    12px;
+      --shadow:    0 4px 24px rgba(0,0,0,0.4);
+    }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+    input { font-family: inherit; }
+
+    /* ─── Layout ───────────────────────────────────────────────────────────── */
+    #app { min-height: 100vh; display: flex; flex-direction: column; }
+    .page { display: none; flex-direction: column; min-height: 100vh; animation: fadeIn .25s ease; }
+    .page.active { display: flex; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+
+    /* ─── Header ───────────────────────────────────────────────────────────── */
+    header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 18px 28px; border-bottom: 1px solid var(--border);
+      background: var(--surface); position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
+    .logo span { color: var(--accent); }
+    header .spacer { flex: 1; }
+    .header-btn {
+      padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
+      transition: all .15s;
+    }
+    .header-btn:hover { background: var(--border); color: var(--text); }
+    .header-btn.active-tab { background: var(--accent-dim); color: #c7d2fe; border-color: var(--accent); }
+
+    /* ─── Cards ────────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ─── Page: Model Select ───────────────────────────────────────────────── */
+    .model-select-page {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; flex: 1; padding: 40px 20px; gap: 32px;
+    }
+    .hero-title {
+      font-size: clamp(24px, 4vw, 40px); font-weight: 800;
+      text-align: center; letter-spacing: -.5px;
+      background: linear-gradient(135deg, #a5b4fc, #818cf8, #6366f1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub { color: var(--text-muted); font-size: 15px; text-align: center; max-width: 480px; line-height: 1.6; }
+    .model-cards { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    .model-card {
+      width: 260px; padding: 28px; border-radius: 16px;
+      border: 2px solid var(--border); background: var(--surface);
+      cursor: pointer; transition: all .2s; text-align: center;
+    }
+    .model-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+    .model-card.selected { border-color: var(--model-color, var(--accent)); box-shadow: 0 0 0 1px var(--model-color, var(--accent)), 0 12px 40px rgba(0,0,0,.5); }
+    .model-icon { font-size: 38px; margin-bottom: 12px; }
+    .model-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .model-provider { font-size: 13px; color: var(--text-muted); }
+    .model-pill {
+      display: inline-block; margin-top: 12px; padding: 3px 10px;
+      border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: .5px;
+      background: rgba(255,255,255,.07); color: var(--text-muted); border: 1px solid var(--border);
+    }
+    .proceed-btn {
+      padding: 14px 40px; background: var(--accent); color: #fff;
+      border-radius: 10px; font-size: 15px; font-weight: 600;
+      opacity: .35; pointer-events: none; transition: all .2s;
+      box-shadow: 0 4px 20px rgba(99,102,241,.4);
+    }
+    .proceed-btn.ready { opacity: 1; pointer-events: all; }
+    .proceed-btn.ready:hover { background: #4f52e8; transform: translateY(-1px); }
+
+    /* ─── Page: Property Select ─────────────────────────────────────────────── */
+    .prop-page { padding: 32px; flex: 1; max-width: 960px; margin: 0 auto; width: 100%; }
+    .prop-page h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .prop-page .sub { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+    .search-bar {
+      width: 100%; padding: 11px 16px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); font-size: 14px; margin-bottom: 16px;
+      transition: border-color .15s;
+    }
+    .search-bar:focus { outline: none; border-color: var(--accent); }
+    .filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-chip {
+      padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-muted); cursor: pointer; transition: all .15s;
+    }
+    .filter-chip:hover, .filter-chip.active { background: var(--accent-dim); border-color: var(--accent); color: #c7d2fe; }
+    .prop-list { display: flex; flex-direction: column; gap: 8px; max-height: 58vh; overflow-y: auto; padding-right: 4px; }
+    .prop-list::-webkit-scrollbar { width: 6px; }
+    .prop-list::-webkit-scrollbar-track { background: transparent; }
+    .prop-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+    .prop-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      cursor: pointer; transition: all .15s;
+    }
+    .prop-item:hover { border-color: var(--accent); background: rgba(99,102,241,.07); }
+    .prop-item.reviewed { opacity: .55; }
+    .prop-item.reviewed::after { content: '✓'; color: var(--correct); font-weight: 700; margin-left: auto; }
+    .prop-name { font-weight: 600; font-size: 14px; }
+    .prop-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .prop-badges { display: flex; gap: 5px; margin-left: auto; flex-shrink: 0; }
+    .prop-badge {
+      font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+      border: 1px solid;
+    }
+    .badge-A { color: #22c55e; border-color: #15803d; background: #052e16; }
+    .badge-B { color: #60a5fa; border-color: #1d4ed8; background: #0c1a3a; }
+    .badge-C { color: #c084fc; border-color: #7e22ce; background: #1a0533; }
+    .badge-D { color: #fbbf24; border-color: #b45309; background: #2d1a00; }
+    .badge-E { color: #f87171; border-color: #991b1b; background: #2d0a0a; }
+
+    /* ─── Page: Review ──────────────────────────────────────────────────────── */
+    .review-layout { display: grid; grid-template-columns: 280px 1fr; flex: 1; overflow: hidden; }
+    .review-sidebar {
+      background: var(--surface); border-right: 1px solid var(--border);
+      padding: 20px; display: flex; flex-direction: column; gap: 12px;
+      overflow-y: auto;
+    }
+    .review-sidebar h3 { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .8px; }
+    .prop-info-box { padding: 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); }
+    .prop-info-box .p-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; word-break: break-all; }
+    .prop-info-row { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .prop-info-row strong { color: var(--text); }
+    .queue-list { display: flex; flex-direction: column; gap: 4px; }
+    .queue-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+      border-radius: 7px; font-size: 13px; cursor: pointer; border: 1px solid transparent;
+      transition: all .15s;
+    }
+    .queue-item:hover { background: var(--surface2); }
+    .queue-item.active { background: rgba(99,102,241,.15); border-color: var(--accent); }
+    .queue-item.done-correct { color: var(--correct); }
+    .queue-item.done-partial { color: var(--partial); }
+    .queue-item.done-incorrect { color: var(--incorrect); }
+    .queue-item .q-num { font-size: 11px; color: var(--text-muted); width: 18px; }
+    .queue-item .q-label { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+    .q-verdict-icon { margin-left: auto; font-size: 14px; }
+    .progress-bar-wrap { background: var(--surface2); border-radius: 999px; height: 6px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width .4s; }
+    .progress-text { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+    .kbd-hint { font-size: 11px; color: var(--text-muted); line-height: 1.7; }
+    .kbd { display: inline-block; padding: 1px 5px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+
+    /* Main review area */
+    .review-main { display: flex; flex-direction: column; overflow-y: auto; }
+    .review-header {
+      padding: 18px 28px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .review-header .model-badge {
+      display: flex; align-items: center; gap: 6px; padding: 5px 12px;
+      border-radius: 999px; font-size: 12px; font-weight: 600;
+      border: 1px solid; background: rgba(0,0,0,.3);
+    }
+    .sentence-card-area { flex: 1; padding: 28px; display: flex; flex-direction: column; gap: 0; }
+    .sentence-outer { display: none; }
+    .sentence-outer.active { display: flex; flex-direction: column; gap: 20px; animation: fadeIn .2s ease; }
+
+    .label-banner {
+      display: flex; align-items: center; gap: 12px; padding: 12px 18px;
+      border-radius: 10px; border: 1px solid;
+    }
+    .label-banner .l-code { font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+    .label-banner .l-display { font-size: 14px; font-weight: 700; }
+    .label-banner .l-desc { font-size: 13px; opacity: .8; }
+
+    .sentence-text-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 22px;
+    }
+    .sentence-text-card .label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+    .sentence-text {
+      font-size: 16px; line-height: 1.75; font-weight: 400; color: var(--text);
+    }
+    .highlight-subject { background: #1e3a5f; color: #93c5fd; padding: 1px 3px; border-radius: 3px; font-weight: 600; }
+    .highlight-object  { background: #3b1f5c; color: #c4b5fd; padding: 1px 3px; border-radius: 3px; font-weight: 600; }
+
+    .span-info-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .span-tag {
+      display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+      border-radius: 7px; font-size: 13px; border: 1px solid;
+    }
+    .span-tag.subject { background: #0c1f38; border-color: #1d4ed8; color: #93c5fd; }
+    .span-tag.object  { background: #1a0a35; border-color: #6d28d9; color: #c4b5fd; }
+    .span-tag .tag-label { font-size: 10px; font-weight: 700; opacity: .7; text-transform: uppercase; }
+    .span-tag .tag-val { font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+    .span-tag.empty-span { opacity: .4; }
+
+    /* Verdict buttons */
+    .verdict-row {
+      display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .verdict-btn {
+      flex: 1; min-width: 120px; padding: 14px 20px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; border: 2px solid;
+      transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .verdict-btn.correct  { color: var(--correct);  border-color: var(--correct);  background: rgba(34,197,94,.07); }
+    .verdict-btn.partial  { color: var(--partial);  border-color: var(--partial);  background: rgba(245,158,11,.07); }
+    .verdict-btn.incorrect{ color: var(--incorrect);border-color: var(--incorrect);background: rgba(239,68,68,.07); }
+    .verdict-btn:hover.correct  { background: rgba(34,197,94,.2); transform: translateY(-1px); }
+    .verdict-btn:hover.partial  { background: rgba(245,158,11,.2); transform: translateY(-1px); }
+    .verdict-btn:hover.incorrect{ background: rgba(239,68,68,.2); transform: translateY(-1px); }
+    .verdict-btn.chosen { transform: none !important; }
+    .verdict-btn.chosen.correct  { background: rgba(34,197,94,.25); box-shadow: 0 0 0 1px var(--correct); }
+    .verdict-btn.chosen.partial  { background: rgba(245,158,11,.25); box-shadow: 0 0 0 1px var(--partial); }
+    .verdict-btn.chosen.incorrect{ background: rgba(239,68,68,.25); box-shadow: 0 0 0 1px var(--incorrect);}
+    .kbd-shortcut { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: rgba(255,255,255,.1); font-family: 'JetBrains Mono', monospace; }
+
+    .nav-row { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+    .nav-btn {
+      padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border);
+      transition: all .15s;
+    }
+    .nav-btn:hover { background: var(--border); color: var(--text); }
+    .nav-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); margin-left: auto; }
+    .nav-btn.primary:hover { background: #4f52e8; }
+    .nav-btn:disabled { opacity: .3; pointer-events: none; }
+
+    /* ─── Page: Summary ─────────────────────────────────────────────────────── */
+    .summary-page { padding: 40px; flex: 1; max-width: 900px; margin: 0 auto; width: 100%; }
+    .summary-page h2 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .summary-page .sub { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; }
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .stat-card {
+      padding: 20px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--surface); text-align: center;
+    }
+    .stat-card .val { font-size: 36px; font-weight: 800; line-height: 1; }
+    .stat-card .lbl { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+    .result-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .result-table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; border-bottom: 1px solid var(--border); }
+    .result-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    .result-table tr:last-child td { border-bottom: none; }
+    .verdict-dot { width: 9px; height: 9px; border-radius: 999px; display: inline-block; }
+    .mini-bar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; gap: 1px; min-width: 100px; }
+    .mini-bar-seg { height: 100%; }
+    .done-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+    .done-btn {
+      padding: 12px 24px; border-radius: 9px; font-size: 14px; font-weight: 600;
+      transition: all .15s;
+    }
+    .done-btn.primary { background: var(--accent); color: #fff; }
+    .done-btn.primary:hover { background: #4f52e8; }
+    .done-btn.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .done-btn.secondary:hover { background: var(--border); }
+
+    /* ─── Page: Stats ───────────────────────────────────────────────────────── */
+    .stats-page { padding: 32px; flex: 1; max-width: 1000px; margin: 0 auto; width: 100%; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .model-stats-card { padding: 22px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); }
+    .model-stats-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .acc-bar-wrap { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+    .acc-bar-bg { flex: 1; height: 8px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+    .acc-bar-fill { height: 100%; border-radius: 999px; }
+    .acc-label { font-size: 12px; font-weight: 600; min-width: 36px; text-align: right; }
+    .session-history { margin-top: 28px; }
+    .session-history h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+    .history-row {
+      display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+      border-radius: 8px; background: var(--surface); border: 1px solid var(--border);
+      margin-bottom: 6px; font-size: 13px;
+    }
+    .history-row .h-model { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+    .history-row .h-prop { font-weight: 600; }
+    .history-row .h-time { color: var(--text-muted); font-size: 11px; margin-left: auto; }
+    .no-history { color: var(--text-muted); font-size: 14px; text-align: center; padding: 40px; }
+
+    /* ─── Toast ─────────────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 28px; right: 28px;
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500;
+      box-shadow: var(--shadow); z-index: 9999;
+      transform: translateY(20px); opacity: 0; transition: all .25s;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ─── Misc ──────────────────────────────────────────────────────────────── */
+    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+    .loading { text-align: center; padding: 40px; color: var(--text-muted); }
+    .loading::after { content: ''; display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin-left: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg) } }
+    .section-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px; }
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────────── -->
+  <header>
+    <div class="logo">Ontology <span>Review</span></div>
+    <div class="spacer"></div>
+    <button class="header-btn" id="btn-home" onclick="goHome()">🏠 Home</button>
+    <button class="header-btn" id="btn-stats-tab" onclick="showPage('stats')">📊 Stats</button>
+  </header>
+
+  <!-- ─── Page: Model Select ──────────────────────────────────────────────── -->
+  <div class="page active" id="page-home">
+    <div class="model-select-page">
+      <div>
+        <div class="hero-title">Ontology Label Review</div>
+        <p class="hero-sub" style="margin-top:10px;">
+          Evaluate AI-generated ontology alignment labels. Choose a model, pick a property,
+          and verify whether each classification is correct.
+        </p>
+      </div>
+      <div class="model-cards" id="model-cards"></div>
+      <button class="proceed-btn" id="proceed-btn" onclick="proceedToProps()">
+        Select Property →
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── Page: Property Select ───────────────────────────────────────────── -->
+  <div class="page" id="page-props">
+    <div class="prop-page">
+      <h2>Select a Property</h2>
+      <p class="sub" id="prop-page-sub">Choose an ontology property to review.</p>
+      <input class="search-bar" id="prop-search" placeholder="🔍  Search properties..." oninput="filterProps()" />
+      <div class="filter-row">
+        <span class="section-title" style="align-self:center">Show:</span>
+        <button class="filter-chip active" id="chip-all" onclick="setFilter('all')">All</button>
+        <button class="filter-chip" id="chip-unreviewed" onclick="setFilter('unreviewed')">Unreviewed</button>
+        <button class="filter-chip" id="chip-reviewed" onclick="setFilter('reviewed')">Reviewed</button>
+      </div>
+      <div class="prop-list" id="prop-list">
+        <div class="loading">Loading properties</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Page: Review ────────────────────────────────────────────────────── -->
+  <div class="page" id="page-review">
+    <div class="review-layout">
+      <!-- Sidebar -->
+      <div class="review-sidebar" id="review-sidebar">
+        <h3>Property</h3>
+        <div class="prop-info-box" id="sidebar-prop-info">—</div>
+        <hr class="divider">
+        <h3>Model</h3>
+        <div id="sidebar-model-info" style="font-size:13px;"></div>
+        <hr class="divider">
+        <h3>Progress</h3>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+        <div class="progress-text" id="progress-text">0 / 0</div>
+        <hr class="divider">
+        <h3>Queue</h3>
+        <div class="queue-list" id="queue-list"></div>
+        <hr class="divider">
+        <div class="kbd-hint">
+          <strong style="color:var(--text)">Keyboard</strong><br>
+          <span class="kbd">C</span> Correct &nbsp;
+          <span class="kbd">P</span> Partial<br>
+          <span class="kbd">X</span> Incorrect &nbsp;
+          <span class="kbd">→</span> Next
+        </div>
+      </div>
+      <!-- Main area -->
+      <div class="review-main" id="review-main">
+        <div class="review-header">
+          <div class="model-badge" id="review-model-badge" style="border-color:#444;color:#ccc;">—</div>
+          <span style="font-weight:600;font-size:15px;" id="review-prop-name">—</span>
+          <button class="nav-btn" style="margin-left:auto" onclick="showPage('props')">← Back</button>
+        </div>
+        <div class="sentence-card-area" id="sentence-card-area">
+          <!-- Sentence cards injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Page: Summary ───────────────────────────────────────────────────── -->
+  <div class="page" id="page-summary">
+    <div class="summary-page">
+      <h2>Session Complete 🎉</h2>
+      <p class="sub" id="summary-sub">—</p>
+      <div class="results-grid" id="summary-stats"></div>
+      <h3 style="margin-bottom:12px;font-size:15px;">Per-Sentence Results</h3>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="result-table" id="result-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Label</th>
+              <th>Sentence</th>
+              <th>Your Verdict</th>
+            </tr>
+          </thead>
+          <tbody id="result-tbody"></tbody>
+        </table>
+      </div>
+      <div class="done-actions">
+        <button class="done-btn primary" onclick="showPage('props')">Review Another Property</button>
+        <button class="done-btn secondary" onclick="goHome()">Change Model</button>
+        <button class="done-btn secondary" onclick="showPage('stats')">📊 View All Stats</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Page: Stats ──────────────────────────────────────────────────────── -->
+  <div class="page" id="page-stats">
+    <div class="stats-page">
+      <h2 style="margin-bottom:6px">📊 Review Statistics</h2>
+      <p style="color:var(--text-muted);font-size:14px;margin-bottom:24px;">Aggregated results from all review sessions.</p>
+      <div class="stats-grid" id="stats-grid">
+        <div class="loading">Loading stats</div>
+      </div>
+      <div class="session-history">
+        <h3>Recent Sessions</h3>
+        <div id="session-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ─── State ─────────────────────────────────────────────────────────────────
+let selectedModel = null;
+let allProperties = [];
+let propFilter = 'all';
+let propSearch = '';
+
+let currentSession = {
+  modelKey: null,
+  propertyName: null,
+  sentences: [],
+  verdicts: {},     // index -> 'correct' | 'partial' | 'incorrect'
+  current: 0,
+  labelMeta: {},
+};
+
+const LABEL_COLORS = {
+  A: '#22c55e', B: '#3b82f6', C: '#a855f7', D: '#f59e0b', E: '#ef4444'
+};
+
+// ─── Utilities ──────────────────────────────────────────────────────────────
+function showToast(msg, duration = 2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (name === 'stats') loadStats();
+}
+
+function goHome() {
+  selectedModel = null;
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('proceed-btn').classList.remove('ready');
+  showPage('home');
+}
+
+// ─── Init ───────────────────────────────────────────────────────────────────
+async function init() {
+  const res = await fetch('/api/models');
+  const models = await res.json();
+  renderModelCards(models);
+  document.addEventListener('keydown', handleKeyboard);
+}
+
+// ─── Model Selection ────────────────────────────────────────────────────────
+function renderModelCards(models) {
+  const container = document.getElementById('model-cards');
+  container.innerHTML = models.map(m => `
+    <div class="model-card" id="mc-${m.key}" onclick="selectModel('${m.key}', '${m.color}')"
+         style="--model-color:${m.color}">
+      <div class="model-icon">${m.icon}</div>
+      <div class="model-name">${m.label}</div>
+      <div class="model-provider">${m.provider}</div>
+      <div class="model-pill" style="color:${m.color};border-color:${m.color};background:${m.color}18">${m.key.toUpperCase()}</div>
+    </div>
+  `).join('');
+}
+
+function selectModel(key, color) {
+  selectedModel = key;
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('mc-' + key).classList.add('selected');
+  document.getElementById('proceed-btn').classList.add('ready');
+}
+
+async function proceedToProps() {
+  if (!selectedModel) return;
+  showPage('props');
+  document.getElementById('prop-page-sub').textContent = `Reviewing with: loading...`;
+  await loadProperties();
+}
+
+// ─── Property Selection ──────────────────────────────────────────────────────
+async function loadProperties() {
+  document.getElementById('prop-list').innerHTML = '<div class="loading">Loading properties</div>';
+  const res = await fetch(`/api/properties/${selectedModel}`);
+  allProperties = await res.json();
+  document.getElementById('prop-page-sub').textContent =
+    `Model: ${selectedModel.toUpperCase()} — ${allProperties.length} properties available`;
+  renderProps();
+}
+
+function renderProps() {
+  const q = propSearch.toLowerCase();
+  let filtered = allProperties.filter(p =>
+    p.name.toLowerCase().includes(q)
+  );
+  if (propFilter === 'unreviewed') filtered = filtered.filter(p => !p.reviewed);
+  if (propFilter === 'reviewed')   filtered = filtered.filter(p =>  p.reviewed);
+
+  const container = document.getElementById('prop-list');
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state">No properties match your filters.</div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(p => {
+    const badges = Object.entries(p.labelCounts || {})
+      .filter(([,v]) => v > 0)
+      .sort(([a],[b]) => a.localeCompare(b))
+      .map(([l,c]) => `<span class="prop-badge badge-${l}">${l}:${c}</span>`)
+      .join('');
+    return `
+      <div class="prop-item ${p.reviewed ? 'reviewed' : ''}" onclick="startReview('${p.name}')">
+        <div>
+          <div class="prop-name">${p.name}</div>
+          <div class="prop-meta">${p.domain} → ${p.range} &nbsp;·&nbsp; ${p.totalSentences} sentences</div>
+        </div>
+        <div class="prop-badges">${badges}</div>
+      </div>`;
+  }).join('');
+}
+
+function filterProps() {
+  propSearch = document.getElementById('prop-search').value;
+  renderProps();
+}
+
+function setFilter(f) {
+  propFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('chip-' + f).classList.add('active');
+  renderProps();
+}
+
+// ─── Review Session ──────────────────────────────────────────────────────────
+async function startReview(propName) {
+  showPage('review');
+  document.getElementById('sentence-card-area').innerHTML = '<div class="loading">Loading sentences</div>';
+
+  const res = await fetch(`/api/sentences/${selectedModel}/${encodeURIComponent(propName)}`);
+  const data = await res.json();
+  if (data.error) { showToast('Error: ' + data.error, 4000); return; }
+
+  currentSession = {
+    modelKey: selectedModel,
+    propertyName: propName,
+    sentences: data.sentences,
+    verdicts: {},
+    current: 0,
+    labelMeta: data.labelMeta,
+    property: data.property,
+    model: data.model,
+  };
+
+  // Sidebar
+  document.getElementById('sidebar-prop-info').innerHTML = `
+    <div class="p-name">${data.property.name}</div>
+    <div class="prop-info-row">Domain: <strong>${data.property.domain}</strong></div>
+    <div class="prop-info-row">Range: <strong>${data.property.range}</strong></div>
+  `;
+  document.getElementById('sidebar-model-info').innerHTML = `
+    <span style="color:${data.model.color};font-weight:700">${data.model.label}</span>
+  `;
+  document.getElementById('review-prop-name').textContent = propName;
+  document.getElementById('review-model-badge').innerHTML = data.model.label;
+  document.getElementById('review-model-badge').style.borderColor = data.model.color;
+  document.getElementById('review-model-badge').style.color = data.model.color;
+
+  buildSentenceCards();
+  buildQueueList();
+  updateProgress();
+  showSentence(0);
+}
+
+function buildSentenceCards() {
+  const area = document.getElementById('sentence-card-area');
+  area.innerHTML = currentSession.sentences.map((s, i) => {
+    const lm = currentSession.labelMeta[s.label] || {};
+    const color = LABEL_COLORS[s.label] || '#888';
+    const highlighted = highlightSpans(s.text, s.subjectText, s.objectText);
+    const subSpan = s.subjectText
+      ? `<div class="span-tag subject"><span class="tag-label">Subject</span><span class="tag-val">"${s.subjectText}"</span></div>`
+      : `<div class="span-tag subject empty-span"><span class="tag-label">Subject</span><span class="tag-val">(none)</span></div>`;
+    const objSpan = s.objectText
+      ? `<div class="span-tag object"><span class="tag-label">Object</span><span class="tag-val">"${s.objectText}"</span></div>`
+      : `<div class="span-tag object empty-span"><span class="tag-label">Object</span><span class="tag-val">(none)</span></div>`;
+
+    return `
+    <div class="sentence-outer" id="sent-outer-${i}">
+      <div class="label-banner" style="background:${color}15;border-color:${color}55;color:${color}">
+        <div class="l-code">${s.label}</div>
+        <div>
+          <div class="l-display">${lm.display || s.label}</div>
+          <div class="l-desc">${lm.desc || ''}</div>
+        </div>
+      </div>
+
+      <div class="sentence-text-card">
+        <div class="label">Sentence #${s.index + 1} of corpus</div>
+        <div class="sentence-text">${highlighted}</div>
+      </div>
+
+      <div class="span-info-row">
+        ${subSpan}
+        ${objSpan}
+      </div>
+
+      <div class="verdict-row">
+        <button class="verdict-btn correct" id="vbtn-${i}-correct" onclick="setVerdict(${i},'correct')">
+          ✅ Correct <span class="kbd-shortcut">C</span>
+        </button>
+        <button class="verdict-btn partial" id="vbtn-${i}-partial" onclick="setVerdict(${i},'partial')">
+          ⚠️ Partial <span class="kbd-shortcut">P</span>
+        </button>
+        <button class="verdict-btn incorrect" id="vbtn-${i}-incorrect" onclick="setVerdict(${i},'incorrect')">
+          ❌ Incorrect <span class="kbd-shortcut">X</span>
+        </button>
+      </div>
+      <div class="nav-row">
+        <button class="nav-btn" onclick="goPrev()" id="btn-prev-${i}" ${i === 0 ? 'disabled' : ''}>← Prev</button>
+        <button class="nav-btn primary" id="btn-next-${i}" onclick="goNext(${i})" ${i === currentSession.sentences.length - 1 ? 'style="display:none"' : ''}>
+          Next →
+        </button>
+        ${i === currentSession.sentences.length - 1
+          ? `<button class="nav-btn primary" id="btn-finish" onclick="finishSession()">
+               Finish Session ✓
+             </button>`
+          : ''
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function highlightSpans(text, subjectText, objectText) {
+  let result = escHtml(text);
+  // Highlight object first (so subject can overlap if needed)
+  if (objectText && objectText.trim()) {
+    const esc = escHtml(objectText).trim();
+    result = result.replace(
+      new RegExp(escRegex(esc), 'gi'),
+      `<span class="highlight-object">$&</span>`
+    );
+  }
+  if (subjectText && subjectText.trim()) {
+    const esc = escHtml(subjectText).trim();
+    result = result.replace(
+      new RegExp(escRegex(esc), 'gi'),
+      `<span class="highlight-subject">$&</span>`
+    );
+  }
+  return result;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildQueueList() {
+  const list = document.getElementById('queue-list');
+  const lm = currentSession.labelMeta;
+  list.innerHTML = currentSession.sentences.map((s, i) => {
+    const color = LABEL_COLORS[s.label] || '#888';
+    return `
+      <div class="queue-item" id="qi-${i}" onclick="jumpTo(${i})">
+        <span class="q-num">${i + 1}</span>
+        <span class="q-label" style="color:${color};background:${color}22;border:1px solid ${color}44">${s.label}</span>
+        <span style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px">
+          ${s.text.substring(0, 45)}…
+        </span>
+        <span class="q-verdict-icon" id="qi-icon-${i}"></span>
+      </div>`;
+  }).join('');
+}
+
+function showSentence(i) {
+  document.querySelectorAll('.sentence-outer').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(`sent-outer-${i}`);
+  if (el) el.classList.add('active');
+  currentSession.current = i;
+
+  // Update queue highlight
+  document.querySelectorAll('.queue-item').forEach(q => q.classList.remove('active'));
+  const qi = document.getElementById(`qi-${i}`);
+  if (qi) { qi.classList.add('active'); qi.scrollIntoView({ block:'nearest' }); }
+
+  // Scroll to top of main area
+  document.getElementById('review-main').scrollTop = 0;
+}
+
+function jumpTo(i) {
+  showSentence(i);
+}
+
+function goPrev() {
+  const i = currentSession.current;
+  if (i > 0) showSentence(i - 1);
+}
+
+function goNext(i) {
+  const total = currentSession.sentences.length;
+  if (i < total - 1) showSentence(i + 1);
+}
+
+function setVerdict(i, verdict) {
+  currentSession.verdicts[i] = verdict;
+
+  // Update buttons
+  ['correct','partial','incorrect'].forEach(v => {
+    const btn = document.getElementById(`vbtn-${i}-${v}`);
+    if (btn) btn.classList.remove('chosen');
+  });
+  const chosen = document.getElementById(`vbtn-${i}-${verdict}`);
+  if (chosen) chosen.classList.add('chosen');
+
+  // Update queue item styling
+  const qi = document.getElementById(`qi-${i}`);
+  if (qi) {
+    qi.classList.remove('done-correct','done-partial','done-incorrect');
+    qi.classList.add(`done-${verdict}`);
+  }
+  const icon = document.getElementById(`qi-icon-${i}`);
+  if (icon) {
+    icon.textContent = verdict === 'correct' ? '✅' : verdict === 'partial' ? '⚠️' : '❌';
+  }
+
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = currentSession.sentences.length;
+  const done = Object.keys(currentSession.verdicts).length;
+  document.getElementById('progress-fill').style.width = `${total ? (done/total)*100 : 0}%`;
+  document.getElementById('progress-text').textContent = `${done} / ${total}`;
+}
+
+// ─── Keyboard shortcuts ──────────────────────────────────────────────────────
+function handleKeyboard(e) {
+  if (!document.getElementById('page-review').classList.contains('active')) return;
+  if (e.target.tagName === 'INPUT') return;
+
+  const i = currentSession.current;
+  if (e.key === 'c' || e.key === 'C') { setVerdict(i, 'correct');   showToast('✅ Marked Correct'); }
+  if (e.key === 'p' || e.key === 'P') { setVerdict(i, 'partial');   showToast('⚠️ Marked Partial'); }
+  if (e.key === 'x' || e.key === 'X') { setVerdict(i, 'incorrect'); showToast('❌ Marked Incorrect'); }
+  if (e.key === 'ArrowRight') { goNext(i); }
+  if (e.key === 'ArrowLeft')  { goPrev(); }
+}
+
+// ─── Finish Session ──────────────────────────────────────────────────────────
+async function finishSession() {
+  const total = currentSession.sentences.length;
+  const doneCount = Object.keys(currentSession.verdicts).length;
+  if (doneCount < total) {
+    const ok = confirm(`You have only reviewed ${doneCount}/${total} sentences. Submit anyway?`);
+    if (!ok) return;
+  }
+
+  // Build reviews array
+  const reviews = currentSession.sentences.map((s, i) => ({
+    sentenceIndex: s.index,
+    text: s.text,
+    labelCode: s.label,
+    subjectText: s.subjectText,
+    objectText: s.objectText,
+    verdict: currentSession.verdicts[i] || 'unreviewed',
+  }));
+
+  const res = await fetch('/api/submit-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      modelKey: currentSession.modelKey,
+      propertyName: currentSession.propertyName,
+      reviews,
+    }),
+  });
+
+  if (res.ok) {
+    showSummary(reviews);
+    // Refresh property list reviewed status
+    loadProperties();
+  } else {
+    showToast('⚠️ Error saving session', 3000);
+  }
+}
+
+function showSummary(reviews) {
+  const correct   = reviews.filter(r => r.verdict === 'correct').length;
+  const partial   = reviews.filter(r => r.verdict === 'partial').length;
+  const incorrect = reviews.filter(r => r.verdict === 'incorrect').length;
+  const total     = reviews.length;
+  const accuracy  = total ? Math.round((correct / total) * 100) : 0;
+
+  document.getElementById('summary-sub').textContent =
+    `Property: ${currentSession.propertyName} · Model: ${currentSession.model.label}`;
+
+  document.getElementById('summary-stats').innerHTML = `
+    <div class="stat-card"><div class="val">${total}</div><div class="lbl">Sentences Reviewed</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--correct)">${correct}</div><div class="lbl">Correct</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--partial)">${partial}</div><div class="lbl">Partially Correct</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--incorrect)">${incorrect}</div><div class="lbl">Incorrect</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--accent)">${accuracy}%</div><div class="lbl">Accuracy Rate</div></div>
+  `;
+
+  const tbody = document.getElementById('result-tbody');
+  tbody.innerHTML = reviews.map((r, i) => {
+    const color = LABEL_COLORS[r.labelCode] || '#888';
+    const lm = currentSession.labelMeta[r.labelCode] || {};
+    const vColor = r.verdict === 'correct' ? 'var(--correct)' : r.verdict === 'partial' ? 'var(--partial)' : r.verdict === 'incorrect' ? 'var(--incorrect)' : 'var(--text-muted)';
+    const vIcon = r.verdict === 'correct' ? '✅' : r.verdict === 'partial' ? '⚠️' : r.verdict === 'incorrect' ? '❌' : '—';
+    return `
+      <tr>
+        <td style="color:var(--text-muted)">${i+1}</td>
+        <td><span style="color:${color};font-weight:700;font-family:'JetBrains Mono',monospace">${r.labelCode}</span>
+            <span style="font-size:11px;color:var(--text-muted);margin-left:4px">${lm.display||''}</span></td>
+        <td style="max-width:400px;color:var(--text-muted);font-size:13px">${r.text.substring(0, 90)}…</td>
+        <td style="color:${vColor};font-weight:600">${vIcon} ${r.verdict}</td>
+      </tr>`;
+  }).join('');
+
+  showPage('summary');
+}
+
+// ─── Stats Page ──────────────────────────────────────────────────────────────
+async function loadStats() {
+  const res = await fetch('/api/stats');
+  const stats = await res.json();
+  const reviewsRes = await fetch('/api/reviews');
+  const reviewsData = await reviewsRes.json();
+
+  const grid = document.getElementById('stats-grid');
+  if (!stats.totalSessions) {
+    grid.innerHTML = '<div class="no-history" style="grid-column:1/-1">No review sessions yet. Start reviewing!</div>';
+  } else {
+    grid.innerHTML = Object.entries(stats.byModel).map(([mk, m]) => {
+      const total = m.sentences;
+      const corrPct = total ? Math.round((m.correct / total) * 100) : 0;
+      const partPct = total ? Math.round((m.partial / total) * 100) : 0;
+      const incPct  = total ? Math.round((m.incorrect / total) * 100) : 0;
+      return `
+        <div class="model-stats-card">
+          <h3>${mk.toUpperCase()} Model</h3>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">${m.properties} properties · ${m.sentences} sentences</div>
+          <div class="acc-bar-wrap">
+            <span style="font-size:12px;color:var(--correct);width:72px">✅ Correct</span>
+            <div class="acc-bar-bg"><div class="acc-bar-fill" style="width:${corrPct}%;background:var(--correct)"></div></div>
+            <span class="acc-label" style="color:var(--correct)">${corrPct}%</span>
+          </div>
+          <div class="acc-bar-wrap">
+            <span style="font-size:12px;color:var(--partial);width:72px">⚠️ Partial</span>
+            <div class="acc-bar-bg"><div class="acc-bar-fill" style="width:${partPct}%;background:var(--partial)"></div></div>
+            <span class="acc-label" style="color:var(--partial)">${partPct}%</span>
+          </div>
+          <div class="acc-bar-wrap">
+            <span style="font-size:12px;color:var(--incorrect);width:72px">❌ Incorrect</span>
+            <div class="acc-bar-bg"><div class="acc-bar-fill" style="width:${incPct}%;background:var(--incorrect)"></div></div>
+            <span class="acc-label" style="color:var(--incorrect)">${incPct}%</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // Session history
+  const sessions = [...(reviewsData.sessions || [])].reverse().slice(0, 20);
+  const hist = document.getElementById('session-list');
+  if (!sessions.length) {
+    hist.innerHTML = '<div class="no-history">No sessions yet.</div>';
+  } else {
+    hist.innerHTML = sessions.map(s => {
+      const correct   = s.reviews.filter(r => r.verdict === 'correct').length;
+      const total     = s.reviews.length;
+      const corrPct   = total ? Math.round((correct/total)*100) : 0;
+      const date      = new Date(s.completedAt).toLocaleString();
+      return `
+        <div class="history-row">
+          <span class="h-model" style="background:${s.modelKey==='gemini'?'#4285F420':'#10a37f20'};color:${s.modelKey==='gemini'?'#4285F4':'#10a37f'};border:1px solid ${s.modelKey==='gemini'?'#4285F4':'#10a37f'}40">
+            ${s.modelKey.toUpperCase()}
+          </span>
+          <span class="h-prop">${s.propertyName}</span>
+          <span style="font-size:12px;color:var(--correct)">${corrPct}% accuracy</span>
+          <span style="font-size:12px;color:var(--text-muted)">(${total} sentences)</span>
+          <span class="h-time">${date}</span>
+        </div>`;
+    }).join('');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
